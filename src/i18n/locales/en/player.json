@@ -1,0 +1,22 @@
+{
+  "title": "Players",
+  "addPlayer": "Add Player",
+  "editPlayer": "Edit Player",
+  "name": "Name",
+  "handicap": "Handicap Index",
+  "gender": "Gender",
+  "male": "Male",
+  "female": "Female",
+  "other": "Other",
+  "clubs": "Clubs",
+  "addClub": "Add Club",
+  "editClub": "Edit Club",
+  "clubType": "Club Type",
+  "clubBrand": "Brand",
+  "carryDistance": "Carry Distance",
+  "noPlayers": "No players yet. Add your first player!",
+  "deleteConfirm": "Are you sure you want to delete this player?",
+  "namePlaceholder": "Enter player name",
+  "saved": "Player saved",
+  "deleted": "Player deleted"
+}

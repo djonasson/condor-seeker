@@ -1,0 +1,19 @@
+{
+  "title": "Import / Export",
+  "export": "Export Data",
+  "exportDescription": "Download all your data as a JSON file.",
+  "import": "Import Data",
+  "importDescription": "Upload a previously exported JSON file to restore your data.",
+  "selectFile": "Select File",
+  "importConfirm": "This will replace all existing data. Are you sure?",
+  "exportSuccess": "Data exported successfully",
+  "importSuccess": "Data imported successfully",
+  "importError": "Failed to import data. Please check the file format.",
+  "previewCourses": "{{count}} courses",
+  "previewPlayers": "{{count}} players",
+  "previewRounds": "{{count}} rounds",
+  "preview": "Import Preview",
+  "confirmTitle": "Confirm Import",
+  "confirm": "Import",
+  "cancel": "Cancel"
+}

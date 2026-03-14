@@ -1,0 +1,16 @@
+{
+  "title": "Settings",
+  "theme": "Theme",
+  "light": "Light",
+  "dark": "Dark",
+  "language": "Language",
+  "units": "Units",
+  "distanceUnit": "Distance",
+  "meters": "Meters",
+  "yards": "Yards",
+  "temperatureUnit": "Temperature",
+  "celsius": "Celsius",
+  "fahrenheit": "Fahrenheit",
+  "saved": "Settings saved",
+  "manage": "Manage"
+}

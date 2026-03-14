@@ -1,0 +1,16 @@
+{
+  "title": "Round History",
+  "noRounds": "No rounds played yet. Start your first round!",
+  "date": "Date",
+  "course": "Course",
+  "score": "Score",
+  "players": "Players",
+  "viewDetails": "View Details",
+  "deleteRound": "Delete Round",
+  "deleteConfirm": "Are you sure you want to delete this round?",
+  "deleteConfirmTitle": "Delete Round",
+  "deleted": "Round deleted",
+  "backToHistory": "Back to History",
+  "unknownCourse": "Unknown Course",
+  "roundNotFound": "Round not found"
+}

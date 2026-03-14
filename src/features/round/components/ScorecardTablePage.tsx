@@ -1,0 +1,100 @@
+import { useEffect } from 'react'
+import { Button, Center, Container, Group, Loader, Stack, Text, Title } from '@mantine/core'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { useRoundStore } from '@/stores/round-store'
+import { useRound } from '@/features/round/hooks/useRound'
+import { ScorecardTable } from './ScorecardTable'
+import { ScoreSummaryBar } from './ScoreSummaryBar'
+
+export default function ScorecardTablePage() {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const isActive = useRoundStore((s) => s.isActive)
+
+  useEffect(() => {
+    if (!isActive) {
+      void navigate('/round/new')
+    }
+  }, [isActive, navigate])
+
+  const {
+    courseName,
+    scoringSystem,
+    currentHole,
+    totalHoles,
+    loading,
+    course,
+    playerResults,
+    goToHole,
+    completeRound,
+  } = useRound()
+
+  if (!isActive) {
+    return null
+  }
+
+  if (loading) {
+    return (
+      <Center h="50vh">
+        <Loader color="green" />
+      </Center>
+    )
+  }
+
+  if (!course) {
+    return (
+      <Center h="50vh">
+        <Text>{t('round:courseNotFound')}</Text>
+      </Center>
+    )
+  }
+
+  const isStableford = scoringSystem === 'stableford'
+  const isLastHole = currentHole === totalHoles
+
+  const handleCellClick = (_playerId: string, holeNumber: number) => {
+    goToHole(holeNumber)
+    void navigate('/round/play')
+  }
+
+  return (
+    <Container size="lg" py="md">
+      <Stack gap="md">
+        <Group justify="space-between" align="center">
+          <Title order={3}>{courseName}</Title>
+          <Button variant="subtle" size="xs" onClick={() => void navigate('/round/play')}>
+            {t('round:holeView')}
+          </Button>
+        </Group>
+
+        <ScorecardTable
+          holes={course.holes}
+          players={playerResults.map((r) => ({
+            playerId: r.playerId,
+            playerName: r.playerName,
+            teeId:
+              useRoundStore.getState().players.find((p) => p.playerId === r.playerId)?.teeId ?? '',
+            holeResults: r.holeResults,
+            total: r.total,
+          }))}
+          onCellClick={handleCellClick}
+        />
+
+        <ScoreSummaryBar
+          players={playerResults.map((r) => ({
+            playerName: r.playerName,
+            total: r.total,
+          }))}
+          isStableford={isStableford}
+        />
+
+        {isLastHole && (
+          <Button color="green" size="md" fullWidth onClick={() => void completeRound()}>
+            {t('round:completeRound')}
+          </Button>
+        )}
+      </Stack>
+    </Container>
+  )
+}
