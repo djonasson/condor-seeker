@@ -125,16 +125,16 @@ export function PlayerSelector({ course, selectedPlayers, onChange }: PlayerSele
                   checked={isSelected(player.id)}
                   onChange={(e) => handleTogglePlayer(player, e.currentTarget.checked)}
                 />
-                {isSelected(player.id) && teeOptions.length > 0 && (
+                {isSelected(player.id) && teeOptions.length > 1 && (
                   <Select
                     size="xs"
+                    label={t('round:selectTee')}
                     data={teeOptions}
                     value={
                       selectedPlayers.find((p) => p.playerId === player.id)?.teeId ?? defaultTeeId
                     }
                     onChange={(value) => handleTeeChange(player.id, value ?? defaultTeeId)}
-                    aria-label={t('round:selectTee')}
-                    w={140}
+                    w={160}
                   />
                 )}
               </Group>
@@ -157,14 +157,14 @@ export function PlayerSelector({ course, selectedPlayers, onChange }: PlayerSele
                 ✕
               </Button>
             </Group>
-            {teeOptions.length > 0 && (
+            {teeOptions.length > 1 && (
               <Select
                 size="xs"
+                label={t('round:selectTee')}
                 data={teeOptions}
                 value={player.teeId}
                 onChange={(value) => handleTeeChange(player.playerId, value ?? defaultTeeId)}
-                aria-label={t('round:selectTee')}
-                w={140}
+                w={160}
               />
             )}
           </Group>

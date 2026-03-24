@@ -1,4 +1,5 @@
 import {
+  Button,
   Container,
   Divider,
   Title,
@@ -8,9 +9,12 @@ import {
   Text,
   UnstyledButton,
   Group,
+  PasswordInput,
+  Anchor,
 } from '@mantine/core'
 import { useMantineColorScheme } from '@mantine/core'
-import { IconChevronRight, IconUsers, IconGolf } from '@tabler/icons-react'
+import { IconChevronRight, IconUsers, IconGolf, IconDatabaseExport } from '@tabler/icons-react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useStorage } from '@/hooks/useStorage'
@@ -24,6 +28,8 @@ export default function SettingsPage() {
   const { setColorScheme } = useMantineColorScheme()
   const { i18n } = useTranslation()
 
+  const [apiKey, setApiKey] = useState('')
+
   const theme = useAppStore((s) => s.theme)
   const distanceUnit = useAppStore((s) => s.distanceUnit)
   const temperatureUnit = useAppStore((s) => s.temperatureUnit)
@@ -33,6 +39,15 @@ export default function SettingsPage() {
   const setDistanceUnit = useAppStore((s) => s.setDistanceUnit)
   const setTemperatureUnit = useAppStore((s) => s.setTemperatureUnit)
   const setLanguage = useAppStore((s) => s.setLanguage)
+
+  useEffect(() => {
+    void storage.getSettings().then((s) => setApiKey(s.golfCourseApiKey))
+  }, [storage])
+
+  async function saveApiKey() {
+    const current = await storage.getSettings()
+    await storage.saveSettings({ ...current, golfCourseApiKey: apiKey })
+  }
 
   async function saveSettings(
     patch: Partial<{
@@ -133,6 +148,27 @@ export default function SettingsPage() {
           />
         </div>
 
+        <div>
+          <Text fw={500} mb="xs">
+            {t('apiSection')}
+          </Text>
+          <PasswordInput
+            label={t('apiKey')}
+            description={
+              <>
+                {t('apiKeyHelper')}{' '}
+                <Anchor href="https://golfcourseapi.com/" target="_blank" size="xs">
+                  golfcourseapi.com
+                </Anchor>
+              </>
+            }
+            placeholder={t('apiKeyPlaceholder')}
+            value={apiKey}
+            onChange={(e) => setApiKey(e.currentTarget.value)}
+            onBlur={() => void saveApiKey()}
+          />
+        </div>
+
         <Divider />
 
         <div>
@@ -172,8 +208,47 @@ export default function SettingsPage() {
                 <IconChevronRight size={16} stroke={1.5} color="var(--mantine-color-dimmed)" />
               </Group>
             </UnstyledButton>
+            <UnstyledButton
+              onClick={() => navigate('/import-export')}
+              style={{
+                padding: 'var(--mantine-spacing-sm)',
+                borderRadius: 'var(--mantine-radius-sm)',
+                border: '1px solid var(--mantine-color-default-border)',
+              }}
+            >
+              <Group justify="space-between">
+                <Group gap="sm">
+                  <IconDatabaseExport size={20} stroke={1.5} />
+                  <Text>{tCommon('importExport')}</Text>
+                </Group>
+                <IconChevronRight size={16} stroke={1.5} color="var(--mantine-color-dimmed)" />
+              </Group>
+            </UnstyledButton>
           </Stack>
         </div>
+        {import.meta.env.DEV && (
+          <>
+            <Divider />
+            <div>
+              <Text fw={500} mb="xs" c="orange">
+                {t('developer', 'Developer')}
+              </Text>
+              <Button
+                variant="light"
+                color="orange"
+                fullWidth
+                onClick={() => {
+                  void import('@/lib/seed-data').then(async ({ SEED_DATA }) => {
+                    await storage.importAll(SEED_DATA)
+                    window.location.reload()
+                  })
+                }}
+              >
+                {t('seedData', 'Load Sample Data')}
+              </Button>
+            </div>
+          </>
+        )}
       </Stack>
     </Container>
   )

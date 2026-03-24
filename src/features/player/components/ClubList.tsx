@@ -2,6 +2,8 @@ import { ActionIcon, Group, Table, Text } from '@mantine/core'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import type { Club } from '@/storage/types'
+import { useAppStore } from '@/stores/app-store'
+import { displayDistance, getUnitLabel } from '@/lib/distance'
 
 interface ClubListProps {
   clubs: Club[]
@@ -11,6 +13,8 @@ interface ClubListProps {
 
 export function ClubList({ clubs, onEdit, onDelete }: ClubListProps) {
   const { t } = useTranslation()
+  const distanceUnit = useAppStore((s) => s.distanceUnit)
+  const unitLabel = getUnitLabel(distanceUnit)
 
   if (clubs.length === 0) {
     return (
@@ -26,7 +30,9 @@ export function ClubList({ clubs, onEdit, onDelete }: ClubListProps) {
         <Table.Tr>
           <Table.Th>{t('player:clubType')}</Table.Th>
           <Table.Th>{t('player:clubBrand')}</Table.Th>
-          <Table.Th>{t('player:carryDistance')}</Table.Th>
+          <Table.Th>
+            {t('player:carryDistance')} ({unitLabel})
+          </Table.Th>
           <Table.Th />
         </Table.Tr>
       </Table.Thead>
@@ -35,7 +41,7 @@ export function ClubList({ clubs, onEdit, onDelete }: ClubListProps) {
           <Table.Tr key={club.id}>
             <Table.Td>{club.type}</Table.Td>
             <Table.Td>{club.brand}</Table.Td>
-            <Table.Td>{club.carryDistance}</Table.Td>
+            <Table.Td>{displayDistance(club.carryDistance, distanceUnit)}</Table.Td>
             <Table.Td>
               <Group gap="xs" justify="flex-end">
                 <ActionIcon variant="subtle" onClick={() => onEdit(club)} aria-label="Edit club">

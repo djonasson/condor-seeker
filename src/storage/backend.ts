@@ -6,6 +6,7 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: 'light',
   language: 'en',
   storageBackend: 'local',
+  golfCourseApiKey: '',
 }
 
 export interface StorageBackend {

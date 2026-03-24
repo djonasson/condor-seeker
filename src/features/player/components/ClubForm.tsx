@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { v4 as uuidv4 } from 'uuid'
 import type { Club } from '@/storage/types'
 import { CLUB_TYPES } from '../types'
+import { useAppStore } from '@/stores/app-store'
+import { displayDistance, toMeters, getUnitLabel } from '@/lib/distance'
 
 interface ClubFormProps {
   opened: boolean
@@ -14,12 +16,14 @@ interface ClubFormProps {
 
 export function ClubForm({ opened, onClose, onSave, initialValues }: ClubFormProps) {
   const { t } = useTranslation()
+  const distanceUnit = useAppStore((s) => s.distanceUnit)
+  const unitLabel = getUnitLabel(distanceUnit)
 
   const form = useForm({
     initialValues: {
       type: initialValues?.type ?? '',
       brand: initialValues?.brand ?? '',
-      carryDistance: initialValues?.carryDistance ?? 0,
+      carryDistance: initialValues ? displayDistance(initialValues.carryDistance, distanceUnit) : 0,
     },
     validate: {
       type: (value) => (value ? null : 'Club type is required'),
@@ -31,7 +35,7 @@ export function ClubForm({ opened, onClose, onSave, initialValues }: ClubFormPro
       id: initialValues?.id ?? uuidv4(),
       type: values.type,
       brand: values.brand,
-      carryDistance: values.carryDistance,
+      carryDistance: toMeters(values.carryDistance, distanceUnit),
     })
     form.reset()
     onClose()
@@ -52,7 +56,7 @@ export function ClubForm({ opened, onClose, onSave, initialValues }: ClubFormPro
         />
         <TextInput label={t('player:clubBrand')} {...form.getInputProps('brand')} mb="sm" />
         <NumberInput
-          label={t('player:carryDistance')}
+          label={`${t('player:carryDistance')} (${unitLabel})`}
           min={0}
           max={400}
           {...form.getInputProps('carryDistance')}

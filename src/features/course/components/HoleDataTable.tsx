@@ -1,5 +1,6 @@
 import { Table, NumberInput, ScrollArea, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
+import { displayDistance, toMeters, getUnitLabel } from '@/lib/distance'
 
 interface TeeInfo {
   id: string
@@ -17,10 +18,12 @@ interface HoleDataTableProps {
   holes: HoleData[]
   tees: TeeInfo[]
   onUpdateHole: (holeNumber: number, field: string, value: number, teeId?: string) => void
+  distanceUnit: 'meters' | 'yards'
 }
 
-export function HoleDataTable({ holes, tees, onUpdateHole }: HoleDataTableProps) {
+export function HoleDataTable({ holes, tees, onUpdateHole, distanceUnit }: HoleDataTableProps) {
   const { t } = useTranslation()
+  const unitLabel = getUnitLabel(distanceUnit)
 
   return (
     <ScrollArea>
@@ -39,7 +42,7 @@ export function HoleDataTable({ holes, tees, onUpdateHole }: HoleDataTableProps)
             {tees.map((tee) => (
               <Table.Th key={`dist-${tee.id}`} style={{ minWidth: 80 }}>
                 <Text size="xs">
-                  {t('course:distance')} ({tee.name})
+                  {t('course:distance')} ({tee.name}) ({unitLabel})
                 </Text>
               </Table.Th>
             ))}
@@ -87,12 +90,12 @@ export function HoleDataTable({ holes, tees, onUpdateHole }: HoleDataTableProps)
                     size="xs"
                     min={0}
                     max={700}
-                    value={hole.distanceByTee[tee.id] ?? 0}
+                    value={displayDistance(hole.distanceByTee[tee.id] ?? 0, distanceUnit)}
                     onChange={(val) =>
                       onUpdateHole(
                         hole.number,
                         'distance',
-                        typeof val === 'number' ? val : 0,
+                        toMeters(typeof val === 'number' ? val : 0, distanceUnit),
                         tee.id,
                       )
                     }

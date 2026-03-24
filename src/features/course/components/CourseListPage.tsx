@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Stack,
   Title,
   Button,
@@ -10,15 +11,23 @@ import {
   Center,
   Modal,
 } from '@mantine/core'
+import { IconStar, IconStarFilled } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useCourses } from '../hooks/useCourses'
+import type { Course } from '@/storage/types'
+
+function getCoursePar(course: Course): number {
+  if (course.tees.length === 0 || course.holes.length === 0) return 0
+  const teeId = course.tees[0].id
+  return course.holes.reduce((sum, h) => sum + (h.parByTee[teeId] ?? 0), 0)
+}
 
 export default function CourseListPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { courses, loading, deleteCourse } = useCourses()
+  const { courses, loading, deleteCourse, saveCourse } = useCourses()
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   const handleDelete = async () => {
@@ -26,6 +35,10 @@ export default function CourseListPage() {
       await deleteCourse(deleteId)
       setDeleteId(null)
     }
+  }
+
+  const toggleStar = async (course: Course) => {
+    await saveCourse({ ...course, starred: !course.starred })
   }
 
   if (loading) {
@@ -42,6 +55,12 @@ export default function CourseListPage() {
         <Title order={2}>{t('course:title')}</Title>
       </Group>
 
+      {courses.length === 0 && (
+        <Text c="dimmed" ta="center" py="xl">
+          {t('course:noCourses')}
+        </Text>
+      )}
+
       <Group grow>
         <Button color="green" onClick={() => navigate('/course/new')}>
           {t('course:addCourse')}
@@ -51,18 +70,20 @@ export default function CourseListPage() {
         </Button>
       </Group>
 
-      {courses.length === 0 ? (
-        <Text c="dimmed" ta="center" py="xl">
-          {t('course:noCourses')}
-        </Text>
-      ) : (
+      {courses.length > 0 &&
         courses.map((course) => (
           <Card key={course.id} shadow="sm" padding="md" radius="md" withBorder>
             <Group justify="space-between" align="flex-start">
-              <Stack gap={4}>
+              <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+                {course.clubName && course.clubName !== course.name && (
+                  <Text size="xs" c="dimmed">
+                    {course.clubName}
+                  </Text>
+                )}
                 <Text fw={600}>{course.name}</Text>
                 <Text size="sm" c="dimmed">
-                  {course.holes.length} {t('course:hole')}s
+                  {course.holes.length} {t('course:hole')}s &middot; {t('course:par')}{' '}
+                  {getCoursePar(course)}
                 </Text>
                 <Group gap={4}>
                   {course.tees.map((tee) => (
@@ -73,6 +94,16 @@ export default function CourseListPage() {
                 </Group>
               </Stack>
               <Group gap="xs">
+                <ActionIcon
+                  variant="subtle"
+                  color={course.starred ? 'yellow' : 'gray'}
+                  onClick={() => void toggleStar(course)}
+                  aria-label={
+                    course.starred ? t('course:unstar', 'Unstar') : t('course:star', 'Star')
+                  }
+                >
+                  {course.starred ? <IconStarFilled size={18} /> : <IconStar size={18} />}
+                </ActionIcon>
                 <Button
                   size="xs"
                   variant="light"
@@ -91,8 +122,7 @@ export default function CourseListPage() {
               </Group>
             </Group>
           </Card>
-        ))
-      )}
+        ))}
 
       <Modal
         opened={deleteId !== null}

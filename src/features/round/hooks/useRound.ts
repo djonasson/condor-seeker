@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
 import { useStorage } from '@/hooks/useStorage'
+import { useAppStore } from '@/stores/app-store'
+import { displayDistance } from '@/lib/distance'
 import { getScoringStrategy } from '@/features/round/scoring'
 import { calculateCourseHandicap, allocateStrokes } from '@/lib/handicap'
 import type { Course, Hole, Tee } from '@/storage/types'
@@ -32,6 +34,7 @@ type PlayerResult = {
 export function useRound() {
   const navigate = useNavigate()
   const storage = useStorage()
+  const distanceUnit = useAppStore((s) => s.distanceUnit)
 
   const courseId = useRoundStore((s) => s.courseId)
   const courseName = useRoundStore((s) => s.courseName)
@@ -140,13 +143,13 @@ export function useRound() {
         holeInfo: {
           number: hole.number,
           par: hole.parByTee[player.teeId] ?? 0,
-          distance: hole.distanceByTee[player.teeId] ?? 0,
+          distance: displayDistance(hole.distanceByTee[player.teeId] ?? 0, distanceUnit),
           handicap: hole.handicap,
           handicapStrokes: alloc[currentHole - 1] ?? 0,
         },
       }
     })
-  }, [course, currentHole, players, strokeAllocationsWithHandicap])
+  }, [course, currentHole, players, strokeAllocationsWithHandicap, distanceUnit])
 
   const playerResults = useMemo((): PlayerResult[] => {
     if (!course) return []
@@ -199,14 +202,14 @@ export function useRound() {
           holeInfo: {
             number: hole.number,
             par: hole.parByTee[player.teeId] ?? 0,
-            distance: hole.distanceByTee[player.teeId] ?? 0,
+            distance: displayDistance(hole.distanceByTee[player.teeId] ?? 0, distanceUnit),
             handicap: hole.handicap,
             handicapStrokes: alloc[holeNumber - 1] ?? 0,
           },
         }
       })
     },
-    [course, players, strokeAllocationsWithHandicap],
+    [course, players, strokeAllocationsWithHandicap, distanceUnit],
   )
 
   const setScore = useCallback(

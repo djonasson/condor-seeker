@@ -15,6 +15,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useStorage } from '@/hooks/useStorage'
+import { useAppStore } from '@/stores/app-store'
 import type { Course } from '@/storage/types'
 import { DEFAULT_TEE_PRESETS } from '../types'
 import { useCourseForm } from '../hooks/useCourseForm'
@@ -49,6 +50,7 @@ function CourseFormInner({ existingCourse }: { existingCourse?: Course }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { saveCourse } = useCourses()
+  const distanceUnit = useAppStore((s) => s.distanceUnit)
   const [newTeeName, setNewTeeName] = useState('')
 
   const {
@@ -99,6 +101,13 @@ function CourseFormInner({ existingCourse }: { existingCourse?: Course }) {
 
       {currentStep === 0 && (
         <Stack gap="md">
+          <TextInput
+            label={t('course:clubName', 'Club Name')}
+            value={stepOne.clubName}
+            onChange={(e) => updateStepOne({ clubName: e.currentTarget.value })}
+            placeholder={t('course:clubNamePlaceholder', 'e.g. Royal Golf Club')}
+          />
+
           <TextInput
             label={t('course:name')}
             value={stepOne.name}
@@ -187,7 +196,6 @@ function CourseFormInner({ existingCourse }: { existingCourse?: Course }) {
                     data={teePresetOptions}
                     value={newTeeName || null}
                     onChange={(val) => setNewTeeName(val ?? '')}
-                    searchable
                     style={{ flex: 1 }}
                   />
                 ) : (
@@ -224,7 +232,12 @@ function CourseFormInner({ existingCourse }: { existingCourse?: Course }) {
 
       {currentStep === 1 && (
         <Stack gap="md">
-          <HoleDataTable holes={holes} tees={stepOne.tees} onUpdateHole={updateHole} />
+          <HoleDataTable
+            holes={holes}
+            tees={stepOne.tees}
+            onUpdateHole={updateHole}
+            distanceUnit={distanceUnit}
+          />
 
           <Group justify="flex-end">
             <Button variant="default" onClick={prevStep}>

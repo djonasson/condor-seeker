@@ -41,5 +41,13 @@
   "summary": "Round Summary",
   "backToHome": "Back to Home",
   "roundNotFound": "Round not found",
-  "scoringSystemLabel": "Scoring System"
+  "scoringSystemLabel": "Scoring System",
+  "abandonRound": "Abandon Round",
+  "abandonConfirm": "Are you sure you want to abandon this round? All scores will be lost.",
+  "hcp": "HCP",
+  "out": "Out",
+  "in": "In",
+  "score": "Score",
+  "courseRating": "CR",
+  "slope": "Slope"
 }

@@ -79,6 +79,7 @@ export class DexieStorageBackend implements StorageBackend {
       theme: row.theme,
       language: row.language,
       storageBackend: row.storageBackend,
+      golfCourseApiKey: row.golfCourseApiKey ?? '',
     }
   }
 

@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import { Button, Center, Container, Group, Loader, Stack, Text, Title } from '@mantine/core'
+import { Button, Center, Container, Group, Loader, Stack, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
 import { useRound } from '@/features/round/hooks/useRound'
-import { ScorecardTable } from './ScorecardTable'
+import { TraditionalScorecard } from './TraditionalScorecard'
 import { ScoreSummaryBar } from './ScoreSummaryBar'
 
 export default function ScorecardTablePage() {
@@ -61,15 +61,17 @@ export default function ScorecardTablePage() {
   return (
     <Container size="lg" py="md">
       <Stack gap="md">
-        <Group justify="space-between" align="center">
-          <Title order={3}>{courseName}</Title>
+        <Group justify="flex-end">
           <Button variant="subtle" size="xs" onClick={() => void navigate('/round/play')}>
             {t('round:holeView')}
           </Button>
         </Group>
 
-        <ScorecardTable
+        <TraditionalScorecard
           holes={course.holes}
+          tees={course.tees}
+          clubName={course.clubName}
+          courseName={courseName}
           players={playerResults.map((r) => ({
             playerId: r.playerId,
             playerName: r.playerName,

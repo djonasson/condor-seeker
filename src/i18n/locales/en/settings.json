@@ -12,5 +12,9 @@
   "celsius": "Celsius",
   "fahrenheit": "Fahrenheit",
   "saved": "Settings saved",
-  "manage": "Manage"
+  "manage": "Manage",
+  "apiKey": "GolfCourseAPI API Key",
+  "apiKeyPlaceholder": "Enter your API key",
+  "apiSection": "API Integration",
+  "apiKeyHelper": "Get your free API key at"
 }

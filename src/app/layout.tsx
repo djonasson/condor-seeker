@@ -1,5 +1,4 @@
 import {
-  ActionIcon,
   Anchor,
   AppShell,
   Breadcrumbs,
@@ -8,18 +7,11 @@ import {
   UnstyledButton,
   useMantineColorScheme,
 } from '@mantine/core'
-import {
-  IconArrowLeft,
-  IconHome2,
-  IconGolf,
-  IconHistory,
-  IconChartBar,
-  IconSettings,
-} from '@tabler/icons-react'
+import { IconHome2, IconGolf, IconHistory, IconChartBar, IconSettings } from '@tabler/icons-react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { InstallPrompt } from '@/components/InstallPrompt'
-import { getParentRoute, getBreadcrumbs } from '@/lib/route-hierarchy'
+import { getBreadcrumbs } from '@/lib/route-hierarchy'
 
 function BottomNav() {
   const { t } = useTranslation()
@@ -119,10 +111,6 @@ export function Layout() {
   const { t } = useTranslation()
   const { colorScheme } = useMantineColorScheme()
   const navigate = useNavigate()
-  const location = useLocation()
-
-  const isHome = location.pathname === '/'
-  const parentRoute = getParentRoute(location.pathname)
 
   return (
     <AppShell
@@ -138,19 +126,19 @@ export function Layout() {
     >
       <AppShell.Header>
         <Group h="100%" px="md">
-          {!isHome && parentRoute !== null && (
-            <ActionIcon
-              variant="subtle"
-              color="green"
-              onClick={() => navigate(parentRoute)}
-              aria-label={t('common:back')}
-            >
-              <IconArrowLeft size={20} stroke={1.5} />
-            </ActionIcon>
-          )}
-          <Text fw={700} size="lg" c="green">
+          <Anchor
+            fw={700}
+            size="lg"
+            c="green"
+            underline="never"
+            onClick={(e) => {
+              e.preventDefault()
+              navigate('/')
+            }}
+            style={{ cursor: 'pointer' }}
+          >
             {t('appName')}
-          </Text>
+          </Anchor>
         </Group>
       </AppShell.Header>
 

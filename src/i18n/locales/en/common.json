@@ -26,5 +26,6 @@
   "noRecentRounds": "No rounds played yet",
   "quickActions": "Quick Actions",
   "managePlayers": "Players",
-  "manageCourses": "Courses"
+  "manageCourses": "Courses",
+  "importExport": "Import / Export"
 }

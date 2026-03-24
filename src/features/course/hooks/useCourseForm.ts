@@ -18,6 +18,7 @@ interface HoleFormData {
 
 interface StepOneData {
   name: string
+  clubName: string
   holesCount: 9 | 18
   tees: TeeFormData[]
 }
@@ -39,6 +40,7 @@ export function useCourseForm(existingCourse?: Course) {
     if (existingCourse) {
       return {
         name: existingCourse.name,
+        clubName: existingCourse.clubName ?? '',
         holesCount: existingCourse.holes.length as 9 | 18,
         tees: existingCourse.tees.map((t) => ({
           id: t.id,
@@ -50,6 +52,7 @@ export function useCourseForm(existingCourse?: Course) {
     }
     return {
       name: '',
+      clubName: '',
       holesCount: 18,
       tees: [{ id: uuidv4(), name: 'White', courseRating: 72, slopeRating: 113 }],
     }
@@ -232,12 +235,16 @@ export function useCourseForm(existingCourse?: Course) {
         distanceByTee: h.distanceByTee,
       }))
 
-      return {
+      const course: Course = {
         id: courseId,
         name: stepOne.name,
         holes: courseHoles,
         tees,
       }
+      if (stepOne.clubName.trim()) {
+        course.clubName = stepOne.clubName.trim()
+      }
+      return course
     },
     [existingCourse, stepOne, holes],
   )

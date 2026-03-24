@@ -1,6 +1,8 @@
 export type Course = {
   id: string
   name: string
+  clubName?: string
+  starred?: boolean
   holes: Hole[]
   tees: Tee[]
 }
@@ -66,6 +68,7 @@ export type Settings = {
   theme: 'light' | 'dark'
   language: string
   storageBackend: 'local'
+  golfCourseApiKey: string
 }
 
 export type AppData = {

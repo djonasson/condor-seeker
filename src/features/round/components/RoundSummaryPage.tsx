@@ -3,7 +3,7 @@ import { Button, Center, Group, Loader, Stack, Text, Title } from '@mantine/core
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useStorage } from '@/hooks/useStorage'
-import { ScorecardTable } from '@/features/round/components/ScorecardTable'
+import { TraditionalScorecard } from '@/features/round/components/TraditionalScorecard'
 import type { Course, Round } from '@/storage/types'
 import type { HoleResult, RoundTotal } from '@/features/round/types'
 
@@ -113,20 +113,15 @@ export default function RoundSummaryPage() {
         <Text>{round.scoringSystem}</Text>
       </Group>
 
-      <ScorecardTable holes={course.holes} players={playerColumns} readOnly />
-
-      <Title order={4}>{t('round:total')}</Title>
-      {playerColumns.map((pc) => (
-        <Group key={pc.playerId} gap="lg">
-          <Text fw={500}>{pc.playerName}</Text>
-          <Text>
-            {t('round:gross')}: {pc.total.totalGross}
-          </Text>
-          <Text>
-            {t('round:net')}: {pc.total.totalNet}
-          </Text>
-        </Group>
-      ))}
+      <TraditionalScorecard
+        holes={course.holes}
+        tees={course.tees}
+        clubName={course.clubName}
+        courseName={course.name}
+        date={round.date}
+        players={playerColumns}
+        readOnly
+      />
 
       <Button variant="light" onClick={() => navigate('/')}>
         {t('round:backToHome')}
