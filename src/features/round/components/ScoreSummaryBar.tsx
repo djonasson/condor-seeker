@@ -1,6 +1,7 @@
 import { Group, Paper, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import type { RoundTotal } from '@/features/round/types'
+import { getScoreToParColor, formatScoreToPar } from '@/lib/score-formatting'
 
 type PlayerSummary = {
   playerName: string
@@ -12,10 +13,10 @@ type ScoreSummaryBarProps = {
   isStableford: boolean
 }
 
-function formatToPar(toPar: number): string {
-  if (toPar === 0) return 'E'
-  if (toPar > 0) return `+${toPar}`
-  return String(toPar)
+function toMantineColor(color: ReturnType<typeof getScoreToParColor>): string | undefined {
+  if (color === 'red') return 'red'
+  if (color === 'blue') return 'blue'
+  return undefined
 }
 
 export function ScoreSummaryBar({ players, isStableford }: ScoreSummaryBarProps) {
@@ -38,15 +39,9 @@ export function ScoreSummaryBar({ players, isStableford }: ScoreSummaryBarProps)
             <Text
               size="xs"
               fw={700}
-              c={
-                player.total.totalToPar > 0
-                  ? 'red'
-                  : player.total.totalToPar < 0
-                    ? 'green'
-                    : undefined
-              }
+              c={toMantineColor(getScoreToParColor(player.total.totalToPar))}
             >
-              {formatToPar(player.total.totalToPar)}
+              {formatScoreToPar(player.total.totalToPar)}
             </Text>
             {isStableford && player.total.totalPoints !== undefined && (
               <Text size="xs" fw={700} c="blue">

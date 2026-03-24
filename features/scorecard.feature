@@ -56,6 +56,24 @@ Feature: Scorecard
     Then I should see the full scorecard table
     And the table should show scores for holes 1 through 5
 
+  Scenario: Under par score displays in red
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 3 for "Dustin Johnson"
+    Then the over/under display for "Dustin Johnson" should show "-1"
+    And the over/under color for "Dustin Johnson" should be "red"
+
+  Scenario: Even par score displays in default color
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 4 for "Dustin Johnson"
+    Then the over/under display for "Dustin Johnson" should show "E"
+    And the over/under color for "Dustin Johnson" should be "default"
+
+  Scenario: Over par score displays in blue
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 6 for "Dustin Johnson"
+    Then the over/under display for "Dustin Johnson" should show "+2"
+    And the over/under color for "Dustin Johnson" should be "blue"
+
   Scenario: Abandon a round with confirmation
     Given I have entered scores for holes 1 through 3 for "Dustin Johnson"
     When I click the abandon round button

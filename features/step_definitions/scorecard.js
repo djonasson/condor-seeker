@@ -5,6 +5,7 @@ import { useRoundStore } from '../../src/stores/round-store.ts'
 import { getScoringStrategy } from '../../src/features/round/scoring/index.ts'
 import { DexieStorageBackend } from '../../src/storage/dexie/dexie-backend.ts'
 import { CondorSeekerDB } from '../../src/storage/dexie/db.ts'
+import { getScoreToParColor, formatScoreToPar } from '../../src/lib/score-formatting.ts'
 
 function getStorage() {
   const db = new CondorSeekerDB()
@@ -74,7 +75,18 @@ Given('I am on the scorecard page', (state) => {
 
 Given('I am on hole {int} with par {int}', (state, [holeNum, par]) => {
   useRoundStore.getState().goToHole(parseInt(holeNum))
-  return state
+  // Update the course hole's par for all tees
+  const holes = state.course.holes.map((h) => {
+    if (h.number === parseInt(holeNum)) {
+      const parByTee = { ...h.parByTee }
+      for (const key of Object.keys(parByTee)) {
+        parByTee[key] = parseInt(par)
+      }
+      return { ...h, parByTee }
+    }
+    return h
+  })
+  return { ...state, course: { ...state.course, holes } }
 })
 
 Given('I am on hole {int}', (state, [holeNum]) => {
@@ -336,5 +348,26 @@ Then('I should still be on the scorecard page', (state) => {
 Then('the active round should still exist', (state) => {
   const roundState = useRoundStore.getState()
   expect(roundState.isActive).toBe(true)
+  return state
+})
+
+Then('the over\\/under display for {string} should show {string}', (state, [playerName, expected]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const scores = roundState.scores[player.playerId]
+  const strategy = getScoringStrategy(state.scoringSystem)
+  const holeResults = scores.map((s) => {
+    const hole = state.course.holes.find((h) => h.number === s.holeNumber)
+    const par = hole.parByTee[player.teeId]
+    return strategy.calculateHoleScore(s.grossScore, par, 0)
+  })
+  const total = strategy.calculateRoundTotal(holeResults)
+  expect(formatScoreToPar(total.totalToPar)).toBe(expected)
+  return { ...state, lastTotalToPar: total.totalToPar }
+})
+
+Then('the over\\/under color for {string} should be {string}', (state, [_playerName, expected]) => {
+  const color = getScoreToParColor(state.lastTotalToPar)
+  expect(color).toBe(expected)
   return state
 })
