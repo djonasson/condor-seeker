@@ -5,7 +5,7 @@ import { useRoundStore } from '../../src/stores/round-store.ts'
 import { getScoringStrategy } from '../../src/features/round/scoring/index.ts'
 import { DexieStorageBackend } from '../../src/storage/dexie/dexie-backend.ts'
 import { CondorSeekerDB } from '../../src/storage/dexie/db.ts'
-import { getScoreToParColor, formatScoreToPar } from '../../src/lib/score-formatting.ts'
+import { getScoreToParColor, formatScoreToPar, clampPutts } from '../../src/lib/score-formatting.ts'
 
 function getStorage() {
   const db = new CondorSeekerDB()
@@ -216,10 +216,18 @@ When('I change the gross score to {int} for {string}', (state, [score, playerNam
   const player = state.playerMap[playerName]
   const roundState = useRoundStore.getState()
   const holeNum = roundState.currentHole
-  useRoundStore.getState().setScore(player.playerId, holeNum, {
-    grossScore: parseInt(score),
-    netScore: parseInt(score),
-  })
+  const scores = roundState.scores[player.playerId] ?? []
+  const existing = scores.find((s) => s.holeNumber === holeNum)
+  const newGross = parseInt(score)
+  const update = {
+    grossScore: newGross,
+    netScore: newGross,
+  }
+  // Clamp putts if they exceed the new gross score
+  if (existing?.putts !== undefined && existing.putts > newGross) {
+    update.putts = clampPutts(existing.putts, newGross)
+  }
+  useRoundStore.getState().setScore(player.playerId, holeNum, update)
   return state
 })
 
@@ -369,5 +377,26 @@ Then('the over\\/under display for {string} should show {string}', (state, [play
 Then('the over\\/under color for {string} should be {string}', (state, [_playerName, expected]) => {
   const color = getScoreToParColor(state.lastTotalToPar)
   expect(color).toBe(expected)
+  return state
+})
+
+When('I enter {int} putts for {string} on hole {int}', (state, [putts, playerName, holeNum]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
+  const grossScore = holeScore?.grossScore ?? 0
+  const clamped = clampPutts(parseInt(putts), grossScore)
+  useRoundStore.getState().setScore(player.playerId, parseInt(holeNum), { putts: clamped })
+  return state
+})
+
+Then('the putts for hole {int} should be {int} for {string}', (state, [holeNum, expected, playerName]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
+  expect(holeScore).toBeDefined()
+  expect(holeScore.putts).toBe(parseInt(expected))
   return state
 })

@@ -6,6 +6,10 @@ export function getScoreToParColor(scoreToPar: number): ScoreToParColor {
   return 'default'
 }
 
+export function clampPutts(putts: number, grossScore: number): number {
+  return Math.min(putts, grossScore)
+}
+
 export function formatScoreToPar(scoreToPar: number): string {
   if (scoreToPar === 0) return 'E'
   if (scoreToPar > 0) return `+${scoreToPar}`

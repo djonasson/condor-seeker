@@ -43,6 +43,25 @@ Feature: Scorecard
     When I enter a gross score of 5 for "Dustin Johnson" on hole 1
     Then the net score for hole 1 should be 4 for "Dustin Johnson"
 
+  Scenario: Putts cannot exceed gross score
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 3 for "Dustin Johnson"
+    And I enter 4 putts for "Dustin Johnson" on hole 1
+    Then the putts for hole 1 should be 3 for "Dustin Johnson"
+
+  Scenario: Putts are capped when gross score is reduced
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 5 for "Dustin Johnson"
+    And I enter 3 putts for "Dustin Johnson" on hole 1
+    And I change the gross score to 2 for "Dustin Johnson"
+    Then the putts for hole 1 should be 2 for "Dustin Johnson"
+
+  Scenario: Putts equal to gross score are allowed
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 3 for "Dustin Johnson"
+    And I enter 3 putts for "Dustin Johnson" on hole 1
+    Then the putts for hole 1 should be 3 for "Dustin Johnson"
+
   Scenario: Edit a previous hole's score
     Given I have entered a score of 6 for "Dustin Johnson" on hole 1
     And I am on hole 3

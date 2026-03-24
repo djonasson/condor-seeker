@@ -2,6 +2,7 @@ import { ActionIcon, Checkbox, Group, NumberInput, Paper, Stack, Text } from '@m
 import { IconMinus, IconPlus } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import type { HoleScore } from '@/storage/types'
+import { clampPutts } from '@/lib/score-formatting'
 
 type HoleScoreEntryProps = {
   playerName: string
@@ -29,13 +30,21 @@ export function HoleScoreEntry({
 
   const handleGrossChange = (delta: number) => {
     const newGross = Math.max(1, gross + delta)
-    onScoreChange({ grossScore: newGross })
+    const update: Partial<HoleScore> = { grossScore: newGross }
+    if (score?.putts !== undefined && score.putts > newGross) {
+      update.putts = clampPutts(score.putts, newGross)
+    }
+    onScoreChange(update)
   }
 
   const handleGrossInput = (val: string | number) => {
     const num = typeof val === 'string' ? parseInt(val, 10) : val
     if (!isNaN(num) && num >= 1) {
-      onScoreChange({ grossScore: num })
+      const update: Partial<HoleScore> = { grossScore: num }
+      if (score?.putts !== undefined && score.putts > num) {
+        update.putts = clampPutts(score.putts, num)
+      }
+      onScoreChange(update)
     }
   }
 
@@ -103,12 +112,14 @@ export function HoleScoreEntry({
             value={score?.putts ?? ''}
             onChange={(val) => {
               const num = typeof val === 'string' ? parseInt(val, 10) : val
-              onScoreChange({
-                putts: isNaN(num) ? undefined : num,
-              })
+              if (isNaN(num)) {
+                onScoreChange({ putts: undefined })
+              } else {
+                onScoreChange({ putts: gross > 0 ? clampPutts(num, gross) : num })
+              }
             }}
             min={0}
-            max={10}
+            max={gross > 0 ? gross : 10}
             w={70}
             size="xs"
             hideControls
