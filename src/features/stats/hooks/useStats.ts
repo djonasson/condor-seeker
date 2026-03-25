@@ -28,6 +28,8 @@ export type StatsResult = {
   puttsAvg: number | null
   firPercent: number | null
   girPercent: number | null
+  sandSavePercent: number | null
+  penaltiesPerRound: number | null
   bestRound: number | null
   roundsPlayed: number
   scoringTrend: Array<{ date: string; score: number }>
@@ -86,6 +88,8 @@ export function useStats() {
         puttsAvg: null,
         firPercent: null,
         girPercent: null,
+        sandSavePercent: null,
+        penaltiesPerRound: null,
         bestRound: null,
         roundsPlayed: 0,
         scoringTrend: [],
@@ -113,7 +117,7 @@ export function useStats() {
       puttsAvg = roundsWithPutts.length > 0 ? totalPutts / roundsWithPutts.length : null
     }
 
-    // FIR% - fairways hit on non-par-3 holes
+    // FIR% - fairways hit on non-par-3 holes (uses fairwayResult with fallback to fairwayHit)
     const courseMap = new Map(courses.map((c) => [c.id, c]))
     let fairwaysHit = 0
     let fairwayAttempts = 0
@@ -122,13 +126,18 @@ export function useStats() {
       if (!course) continue
       for (const pr of round.playerRounds) {
         for (const hs of pr.holeScores) {
-          if (hs.fairwayHit == null) continue
+          const hasFairwayData = hs.fairwayResult != null || hs.fairwayHit != null
+          if (!hasFairwayData) continue
           const hole = course.holes.find((h) => h.number === hs.holeNumber)
           if (!hole) continue
           const par = hole.parByTee[pr.teeId] ?? 3
-          if (par <= 3) continue // skip par 3s
+          if (par <= 3) continue
           fairwayAttempts++
-          if (hs.fairwayHit) fairwaysHit++
+          if (hs.fairwayResult != null) {
+            if (hs.fairwayResult === 'hit') fairwaysHit++
+          } else if (hs.fairwayHit) {
+            fairwaysHit++
+          }
         }
       }
     }
@@ -204,11 +213,36 @@ export function useStats() {
       }
     }
 
+    // Sand save %
+    const holesWithBunker = allHoleScores.filter((hs) => hs.bunkerHit === true)
+    let sandSavePercent: number | null = null
+    if (holesWithBunker.length > 0) {
+      const sandSaves = holesWithBunker.filter((hs) => hs.sandSave === true).length
+      sandSavePercent = (sandSaves / holesWithBunker.length) * 100
+    }
+
+    // Penalties per round
+    const holesWithPenalties = allHoleScores.filter((hs) => hs.penaltyStrokes != null)
+    let penaltiesPerRound: number | null = null
+    if (holesWithPenalties.length > 0) {
+      const totalPenalties = holesWithPenalties.reduce(
+        (sum, hs) => sum + (hs.penaltyStrokes ?? 0),
+        0,
+      )
+      const roundsWithPenalties = allPlayerRounds.filter((pr) =>
+        pr.holeScores.some((hs) => hs.penaltyStrokes != null),
+      )
+      penaltiesPerRound =
+        roundsWithPenalties.length > 0 ? totalPenalties / roundsWithPenalties.length : null
+    }
+
     return {
       scoringAvg: Math.round(scoringAvg * 10) / 10,
       puttsAvg: puttsAvg != null ? Math.round(puttsAvg * 10) / 10 : null,
       firPercent: firPercent != null ? Math.round(firPercent * 10) / 10 : null,
       girPercent: girPercent != null ? Math.round(girPercent * 10) / 10 : null,
+      sandSavePercent: sandSavePercent != null ? Math.round(sandSavePercent * 10) / 10 : null,
+      penaltiesPerRound: penaltiesPerRound != null ? Math.round(penaltiesPerRound * 10) / 10 : null,
       bestRound,
       roundsPlayed: filteredRounds.length,
       scoringTrend,

@@ -53,13 +53,21 @@ export type PlayerRound = {
   totalNet: number
 }
 
+export type FairwayResult = 'left' | 'hit' | 'right'
+export type GreenMissDirection = 'left' | 'short' | 'long' | 'right'
+
 export type HoleScore = {
   holeNumber: number
   grossScore: number
   netScore: number
   putts?: number
-  fairwayHit?: boolean
+  fairwayHit?: boolean // kept for backward compat with old round data
+  fairwayResult?: FairwayResult
   greenInRegulation?: boolean
+  bunkerHit?: boolean
+  sandSave?: boolean
+  penaltyStrokes?: number
+  greenMissDirection?: GreenMissDirection
 }
 
 export type Settings = {
@@ -70,6 +78,7 @@ export type Settings = {
   language: string
   storageBackend: 'local'
   golfCourseApiKey: string
+  enabledStats: string[]
 }
 
 export type AppData = {

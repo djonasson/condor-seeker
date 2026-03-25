@@ -36,6 +36,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useStorage } from '@/hooks/useStorage'
 import { useAppStore } from '@/stores/app-store'
+import { StatsConfig } from './StatsConfig'
 
 export default function SettingsPage() {
   const { t } = useTranslation('settings')
@@ -59,6 +60,8 @@ export default function SettingsPage() {
   const setDistanceUnit = useAppStore((s) => s.setDistanceUnit)
   const setTemperatureUnit = useAppStore((s) => s.setTemperatureUnit)
   const setLanguage = useAppStore((s) => s.setLanguage)
+  const enabledStats = useAppStore((s) => s.enabledStats)
+  const setEnabledStats = useAppStore((s) => s.setEnabledStats)
 
   useEffect(() => {
     void storage.getSettings().then((s) => setApiKey(s.golfCourseApiKey))
@@ -76,6 +79,7 @@ export default function SettingsPage() {
       distanceUnit: 'meters' | 'yards'
       temperatureUnit: 'celsius' | 'fahrenheit'
       language: string
+      enabledStats: string[]
     }>,
   ) {
     const current = await storage.getSettings()
@@ -111,6 +115,11 @@ export default function SettingsPage() {
     setLanguage(value)
     void i18n.changeLanguage(value)
     void saveSettings({ language: value })
+  }
+
+  function handleEnabledStatsChange(stats: string[]) {
+    setEnabledStats(stats)
+    void saveSettings({ enabledStats: stats })
   }
 
   return (
@@ -190,6 +199,8 @@ export default function SettingsPage() {
             data={[{ label: 'English', value: 'en' }]}
           />
         </div>
+
+        <StatsConfig enabledStats={enabledStats} onChange={handleEnabledStatsChange} />
 
         <div>
           <Text fw={500} mb="xs">

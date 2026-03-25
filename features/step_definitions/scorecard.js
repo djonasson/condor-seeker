@@ -479,14 +479,12 @@ When('I visit hole {int} for the first time', (state, [holeNum]) => {
       const hole = state.course.holes.find((h) => h.number === num)
       const par = hole.parByTee[playerInfo.teeId]
       const handicapStrokes = (state.handicapStrokes?.[playerInfo.playerId]?.[num]) || 0
-      const defaults = computeHoleDefaults(par, handicapStrokes)
+      const enabledStats = ['putts', 'fairwayResult', 'greenInRegulation']
+      const defaults = computeHoleDefaults(par, handicapStrokes, enabledStats)
       const netScore = defaults.grossScore - handicapStrokes
       useRoundStore.getState().setScore(playerInfo.playerId, num, {
-        grossScore: defaults.grossScore,
+        ...defaults,
         netScore,
-        putts: defaults.putts,
-        fairwayHit: defaults.fairwayHit,
-        greenInRegulation: defaults.greenInRegulation,
       })
     }
   }
@@ -519,7 +517,7 @@ Then('the default FIR for {string} on hole {int} should be true', (state, [playe
   const scores = roundState.scores[player.playerId] ?? []
   const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
   expect(holeScore).toBeDefined()
-  expect(holeScore.fairwayHit).toBe(true)
+  expect(holeScore.fairwayResult).toBe('hit')
   return state
 })
 
@@ -539,6 +537,6 @@ Then('the FIR for {string} on hole {int} should not be set', (state, [playerName
   const scores = roundState.scores[player.playerId] ?? []
   const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
   expect(holeScore).toBeDefined()
-  expect(holeScore.fairwayHit).toBeUndefined()
+  expect(holeScore.fairwayResult).toBeUndefined()
   return state
 })

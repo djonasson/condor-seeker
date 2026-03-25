@@ -3,6 +3,7 @@ import { Button, Center, Group, Loader, Modal, Stack, Text, Title } from '@manti
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
+import { useAppStore } from '@/stores/app-store'
 import { useRound } from '@/features/round/hooks/useRound'
 import { computeHoleDefaults } from '@/lib/score-defaults'
 import { HoleScoreEntry } from './HoleScoreEntry'
@@ -13,6 +14,7 @@ export default function ScorecardPage() {
   const navigate = useNavigate()
   const isActive = useRoundStore((s) => s.isActive)
   const clearRound = useRoundStore((s) => s.clearRound)
+  const enabledStats = useAppStore((s) => s.enabledStats)
   const [abandonModalOpen, setAbandonModalOpen] = useState(false)
 
   const handleAbandonRound = () => {
@@ -55,16 +57,12 @@ export default function ScorecardPage() {
         const defaults = computeHoleDefaults(
           playerInfo.holeInfo.par,
           playerInfo.holeInfo.handicapStrokes,
+          enabledStats,
         )
-        setScore(playerInfo.playerId, currentHole, {
-          grossScore: defaults.grossScore,
-          putts: defaults.putts,
-          fairwayHit: defaults.fairwayHit,
-          greenInRegulation: defaults.greenInRegulation,
-        })
+        setScore(playerInfo.playerId, currentHole, defaults)
       }
     }
-  }, [currentHole, course, loading, currentHoleInfo, scores, setScore])
+  }, [currentHole, course, loading, currentHoleInfo, scores, setScore, enabledStats])
 
   if (!isActive) {
     return null

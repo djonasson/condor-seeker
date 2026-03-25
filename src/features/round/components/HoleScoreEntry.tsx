@@ -1,9 +1,12 @@
-import { ActionIcon, Checkbox, Group, NumberInput, Text } from '@mantine/core'
+import { ActionIcon, Group, NumberInput, Stack, Text } from '@mantine/core'
 import { IconMinus, IconPlus } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import type { HoleScore } from '@/storage/types'
 import { clampPutts, formatScoreToPar, getScoreToParColor } from '@/lib/score-formatting'
+import { getVisibleStats } from '@/lib/stat-catalog'
+import { useAppStore } from '@/stores/app-store'
 import { SectionCard } from '@/components/SectionCard'
+import { StatInput } from './StatInput'
 
 type HoleScoreEntryProps = {
   playerName: string
@@ -53,7 +56,10 @@ export function HoleScoreEntry({
   onScoreChange,
 }: HoleScoreEntryProps) {
   const { t } = useTranslation()
+  const enabledStats = useAppStore((s) => s.enabledStats)
   const gross = score?.grossScore ?? 0
+
+  const visibleStats = getVisibleStats(enabledStats, par, score ?? {})
 
   const handleGrossChange = (delta: number) => {
     const newGross = Math.max(1, gross + delta)
@@ -183,79 +189,19 @@ export function HoleScoreEntry({
         )}
       </Group>
 
-      <Group justify="space-between" gap="xs">
-        <Group gap="xs" align="flex-end">
-          <Text size="xs" fw={500} mb={4}>
-            {t('round:putts')}
-          </Text>
-          <ActionIcon
-            variant="default"
-            size="sm"
-            onClick={() => {
-              const currentPutts = score?.putts ?? 0
-              if (currentPutts > 0) {
-                onScoreChange({ putts: currentPutts - 1 })
-              }
-            }}
-            disabled={(score?.putts ?? 0) <= 0}
-            aria-label={t('round:decreasePutts')}
-          >
-            <IconMinus size={14} />
-          </ActionIcon>
-          <NumberInput
-            value={score?.putts ?? ''}
-            onChange={(val) => {
-              const num = typeof val === 'string' ? parseInt(val, 10) : val
-              if (isNaN(num)) {
-                onScoreChange({ putts: undefined })
-              } else {
-                onScoreChange({ putts: gross > 0 ? clampPutts(num, gross) : num })
-              }
-            }}
-            min={0}
-            max={gross > 0 ? gross : 10}
-            w={50}
-            size="xs"
-            hideControls
-            styles={{ input: { textAlign: 'center' } }}
-          />
-          <ActionIcon
-            variant="default"
-            size="sm"
-            onClick={() => {
-              const currentPutts = score?.putts ?? 0
-              const newPutts = currentPutts + 1
-              onScoreChange({ putts: gross > 0 ? clampPutts(newPutts, gross) : newPutts })
-            }}
-            disabled={gross > 0 && (score?.putts ?? 0) >= gross}
-            aria-label={t('round:increasePutts')}
-          >
-            <IconPlus size={14} />
-          </ActionIcon>
-        </Group>
-        {par > 3 && (
-          <Checkbox
-            label={t('round:fir')}
-            checked={score?.fairwayHit ?? false}
-            onChange={(e) =>
-              onScoreChange({
-                fairwayHit: e.currentTarget.checked,
-              })
-            }
-            size="xs"
-          />
-        )}
-        <Checkbox
-          label={t('round:gir')}
-          checked={score?.greenInRegulation ?? false}
-          onChange={(e) =>
-            onScoreChange({
-              greenInRegulation: e.currentTarget.checked,
-            })
-          }
-          size="xs"
-        />
-      </Group>
+      {visibleStats.length > 0 && (
+        <Stack gap="xs">
+          {visibleStats.map((stat) => (
+            <StatInput
+              key={stat.id}
+              stat={stat}
+              value={score?.[stat.id]}
+              score={score ?? {}}
+              onChange={onScoreChange}
+            />
+          ))}
+        </Stack>
+      )}
     </SectionCard>
   )
 }

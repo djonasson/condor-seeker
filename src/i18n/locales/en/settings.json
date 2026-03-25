@@ -17,5 +17,15 @@
   "apiKeyPlaceholder": "Enter your API key",
   "apiSection": "API Integration",
   "primaryColor": "Primary Color",
-  "apiKeyHelper": "Get your free API key at"
+  "apiKeyHelper": "Get your free API key at",
+  "statsToTrack": "Stats to Track",
+  "statTierBasic": "Basic",
+  "statTierAdvanced": "Advanced",
+  "stat_putts": "Putts",
+  "stat_fairwayResult": "Fairway",
+  "stat_greenInRegulation": "GIR",
+  "stat_bunkerHit": "Bunker",
+  "stat_sandSave": "Sand Save",
+  "stat_penaltyStrokes": "Penalties",
+  "stat_greenMissDirection": "Miss Direction"
 }

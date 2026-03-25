@@ -6,7 +6,7 @@ import { useAppStore } from '@/stores/app-store'
 import { displayDistance, getUnitLabel } from '@/lib/distance'
 import { getScoringStrategy } from '@/features/round/scoring'
 import { calculateCourseHandicap, allocateStrokes } from '@/lib/handicap'
-import type { Course, Hole, Tee } from '@/storage/types'
+import type { Course, Hole, HoleScore, Tee } from '@/storage/types'
 import type { HoleResult, RoundTotal } from '@/features/round/types'
 
 type HoleInfo = {
@@ -239,16 +239,7 @@ export function useRound() {
   )
 
   const setScore = useCallback(
-    (
-      playerId: string,
-      holeNumber: number,
-      score: {
-        grossScore?: number
-        putts?: number
-        fairwayHit?: boolean
-        greenInRegulation?: boolean
-      },
-    ) => {
+    (playerId: string, holeNumber: number, score: Partial<HoleScore>) => {
       const playerInfo = currentHoleInfo.find((p) => p.playerId === playerId)
       const handicapStrokes = playerInfo?.holeInfo.handicapStrokes ?? 0
       const gross = score.grossScore

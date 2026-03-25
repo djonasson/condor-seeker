@@ -54,5 +54,22 @@
   "tee": "Tee",
   "handicapIndex": "HI",
   "courseHandicap": "CH",
-  "increasePutts": "Increase putts"
+  "increasePutts": "Increase putts",
+  "fairwayResult": "Fairway",
+  "fairwayResult_left": "Left",
+  "fairwayResult_hit": "Hit",
+  "fairwayResult_right": "Right",
+  "greenInRegulation": "GIR",
+  "bunkerHit": "Bunker",
+  "sandSave": "Sand Save",
+  "penaltyStrokes": "Penalties",
+  "greenMissDirection": "Miss Direction",
+  "greenMissDirection_left": "Left",
+  "greenMissDirection_short": "Short",
+  "greenMissDirection_long": "Long",
+  "greenMissDirection_right": "Right",
+  "yes": "Yes",
+  "no": "No",
+  "decrease": "Decrease {{stat}}",
+  "increase": "Increase {{stat}}"
 }

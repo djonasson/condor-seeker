@@ -81,6 +81,7 @@ export class DexieStorageBackend implements StorageBackend {
       language: row.language,
       storageBackend: row.storageBackend,
       golfCourseApiKey: row.golfCourseApiKey ?? '',
+      enabledStats: row.enabledStats ?? ['putts', 'fairwayResult', 'greenInRegulation'],
     }
   }
 

@@ -43,5 +43,23 @@ export class CondorSeekerDB extends Dexie {
             }
           })
       })
+
+    this.version(3)
+      .stores({
+        courses: 'id, name',
+        players: 'id, name',
+        rounds: 'id, courseId, date',
+        settings: 'id',
+      })
+      .upgrade((tx) => {
+        return tx
+          .table('settings')
+          .toCollection()
+          .modify((row: Record<string, unknown>) => {
+            if (!row.enabledStats) {
+              row.enabledStats = ['putts', 'fairwayResult', 'greenInRegulation']
+            }
+          })
+      })
   }
 }

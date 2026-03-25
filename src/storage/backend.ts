@@ -8,6 +8,7 @@ export const DEFAULT_SETTINGS: Settings = {
   language: 'en',
   storageBackend: 'local',
   golfCourseApiKey: '',
+  enabledStats: ['putts', 'fairwayResult', 'greenInRegulation'],
 }
 
 export interface StorageBackend {

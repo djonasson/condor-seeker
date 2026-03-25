@@ -9,6 +9,7 @@ export const SEED_DATA: AppData = {
     language: 'en',
     storageBackend: 'local',
     golfCourseApiKey: '',
+    enabledStats: ['putts', 'fairwayResult', 'greenInRegulation'],
   },
   players: [
     {
