@@ -197,7 +197,7 @@ Given('rounds have been completed with fairway data:', async (state, params, dat
     courseHoles.push({
       number: i,
       parByTee: { [teeId]: 4 },
-      handicap: i,
+      handicapByTee: { [teeId]: i },
       distanceByTee: { [teeId]: 400 },
     })
   }

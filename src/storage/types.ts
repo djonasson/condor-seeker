@@ -10,7 +10,7 @@ export type Course = {
 export type Hole = {
   number: number
   parByTee: Record<string, number>
-  handicap: number
+  handicapByTee: Record<string, number>
   distanceByTee: Record<string, number>
 }
 

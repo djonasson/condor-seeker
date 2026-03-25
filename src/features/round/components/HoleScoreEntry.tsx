@@ -7,6 +7,8 @@ import { clampPutts } from '@/lib/score-formatting'
 type HoleScoreEntryProps = {
   playerName: string
   par: number
+  distance?: number
+  handicap?: number
   handicapStrokes: number
   score: HoleScore | undefined
   netScore: number
@@ -18,6 +20,8 @@ type HoleScoreEntryProps = {
 export function HoleScoreEntry({
   playerName,
   par,
+  distance,
+  handicap,
   handicapStrokes,
   score,
   netScore,
@@ -58,6 +62,22 @@ export function HoleScoreEntry({
           {handicapStrokes > 0 && (
             <Text size="xs" c="dimmed">
               {t('round:strokes')}: {handicapStrokes}
+            </Text>
+          )}
+        </Group>
+
+        <Group justify="center" gap="lg">
+          <Text size="xs" c="dimmed">
+            {t('round:par')}: {par}
+          </Text>
+          {distance !== undefined && (
+            <Text size="xs" c="dimmed">
+              {t('round:distance')}: {distance}
+            </Text>
+          )}
+          {handicap !== undefined && (
+            <Text size="xs" c="dimmed">
+              {t('round:hcp')}: {handicap}
             </Text>
           )}
         </Group>
@@ -107,23 +127,55 @@ export function HoleScoreEntry({
         </Group>
 
         <Group justify="space-between" gap="xs">
-          <NumberInput
-            label={t('round:putts')}
-            value={score?.putts ?? ''}
-            onChange={(val) => {
-              const num = typeof val === 'string' ? parseInt(val, 10) : val
-              if (isNaN(num)) {
-                onScoreChange({ putts: undefined })
-              } else {
-                onScoreChange({ putts: gross > 0 ? clampPutts(num, gross) : num })
-              }
-            }}
-            min={0}
-            max={gross > 0 ? gross : 10}
-            w={70}
-            size="xs"
-            hideControls
-          />
+          <Group gap="xs" align="flex-end">
+            <Text size="xs" fw={500} mb={4}>
+              {t('round:putts')}
+            </Text>
+            <ActionIcon
+              variant="default"
+              size="sm"
+              onClick={() => {
+                const currentPutts = score?.putts ?? 0
+                if (currentPutts > 0) {
+                  onScoreChange({ putts: currentPutts - 1 })
+                }
+              }}
+              disabled={(score?.putts ?? 0) <= 0}
+              aria-label={t('round:decreasePutts')}
+            >
+              <IconMinus size={14} />
+            </ActionIcon>
+            <NumberInput
+              value={score?.putts ?? ''}
+              onChange={(val) => {
+                const num = typeof val === 'string' ? parseInt(val, 10) : val
+                if (isNaN(num)) {
+                  onScoreChange({ putts: undefined })
+                } else {
+                  onScoreChange({ putts: gross > 0 ? clampPutts(num, gross) : num })
+                }
+              }}
+              min={0}
+              max={gross > 0 ? gross : 10}
+              w={50}
+              size="xs"
+              hideControls
+              styles={{ input: { textAlign: 'center' } }}
+            />
+            <ActionIcon
+              variant="default"
+              size="sm"
+              onClick={() => {
+                const currentPutts = score?.putts ?? 0
+                const newPutts = currentPutts + 1
+                onScoreChange({ putts: gross > 0 ? clampPutts(newPutts, gross) : newPutts })
+              }}
+              disabled={gross > 0 && (score?.putts ?? 0) >= gross}
+              aria-label={t('round:increasePutts')}
+            >
+              <IconPlus size={14} />
+            </ActionIcon>
+          </Group>
           {par > 3 && (
             <Checkbox
               label={t('round:fir')}

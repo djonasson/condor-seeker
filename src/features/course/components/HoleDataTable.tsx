@@ -10,7 +10,7 @@ interface TeeInfo {
 interface HoleData {
   number: number
   parByTee: Record<string, number>
-  handicap: number
+  handicapByTee: Record<string, number>
   distanceByTee: Record<string, number>
 }
 
@@ -38,7 +38,13 @@ export function HoleDataTable({ holes, tees, onUpdateHole, distanceUnit }: HoleD
                 </Text>
               </Table.Th>
             ))}
-            <Table.Th style={{ minWidth: 60 }}>{t('course:handicap')}</Table.Th>
+            {tees.map((tee) => (
+              <Table.Th key={`hcp-${tee.id}`} style={{ minWidth: 70 }}>
+                <Text size="xs">
+                  {t('course:handicap')} ({tee.name})
+                </Text>
+              </Table.Th>
+            ))}
             {tees.map((tee) => (
               <Table.Th key={`dist-${tee.id}`} style={{ minWidth: 80 }}>
                 <Text size="xs">
@@ -71,19 +77,26 @@ export function HoleDataTable({ holes, tees, onUpdateHole, distanceUnit }: HoleD
                   />
                 </Table.Td>
               ))}
-              <Table.Td p={2}>
-                <NumberInput
-                  size="xs"
-                  min={1}
-                  max={18}
-                  value={hole.handicap}
-                  onChange={(val) =>
-                    onUpdateHole(hole.number, 'handicap', typeof val === 'number' ? val : 1)
-                  }
-                  hideControls
-                  styles={{ input: { textAlign: 'center', padding: 4 } }}
-                />
-              </Table.Td>
+              {tees.map((tee) => (
+                <Table.Td key={`hcp-${tee.id}-${hole.number}`} p={2}>
+                  <NumberInput
+                    size="xs"
+                    min={1}
+                    max={18}
+                    value={hole.handicapByTee[tee.id] ?? 1}
+                    onChange={(val) =>
+                      onUpdateHole(
+                        hole.number,
+                        'handicap',
+                        typeof val === 'number' ? val : 1,
+                        tee.id,
+                      )
+                    }
+                    hideControls
+                    styles={{ input: { textAlign: 'center', padding: 4 } }}
+                  />
+                </Table.Td>
+              ))}
               {tees.map((tee) => (
                 <Table.Td key={`dist-${tee.id}-${hole.number}`} p={2}>
                   <NumberInput

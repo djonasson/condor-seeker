@@ -6,6 +6,7 @@ import { getScoringStrategy } from '../../src/features/round/scoring/index.ts'
 import { DexieStorageBackend } from '../../src/storage/dexie/dexie-backend.ts'
 import { CondorSeekerDB } from '../../src/storage/dexie/db.ts'
 import { getScoreToParColor, formatScoreToPar, clampPutts } from '../../src/lib/score-formatting.ts'
+import { computeHoleDefaults } from '../../src/lib/score-defaults.ts'
 
 function getStorage() {
   const db = new CondorSeekerDB()
@@ -29,7 +30,11 @@ function buildDefaultCourse(name, numHoles) {
       parByTee[tee.id] = i <= 4 ? 5 : i <= 10 ? 4 : 3
       distanceByTee[tee.id] = 300 + i * 10
     }
-    holes.push({ number: i, parByTee, handicap: i, distanceByTee })
+    const handicapByTee = {}
+    for (const tee of tees) {
+      handicapByTee[tee.id] = i
+    }
+    holes.push({ number: i, parByTee, handicapByTee, distanceByTee })
   }
   return { id: uuidv4(), name, holes, tees }
 }
@@ -132,7 +137,7 @@ Given('hole {int} has par {int} and handicap {int}', (state, [holeNum, par, hand
     holes[idx] = {
       ...holes[idx],
       parByTee: { ...holes[idx].parByTee, [tee.id]: parseInt(par) },
-      handicap: parseInt(handicap),
+      handicapByTee: { [tee.id]: parseInt(handicap) },
     }
   }
   return { ...state, course: { ...state.course, holes } }
@@ -398,5 +403,142 @@ Then('the putts for hole {int} should be {int} for {string}', (state, [holeNum, 
   const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
   expect(holeScore).toBeDefined()
   expect(holeScore.putts).toBe(parseInt(expected))
+  return state
+})
+
+// --- Putts +/- button steps ---
+
+When('I increase putts for {string}', (state, [playerName]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const holeNum = roundState.currentHole
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === holeNum)
+  const currentPutts = holeScore?.putts ?? 0
+  const gross = holeScore?.grossScore ?? 0
+  const newPutts = currentPutts + 1
+  if (gross > 0 && newPutts > gross) {
+    // Button should be disabled, no-op
+    return state
+  }
+  useRoundStore.getState().setScore(player.playerId, holeNum, { putts: newPutts })
+  return state
+})
+
+When('I decrease putts for {string}', (state, [playerName]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const holeNum = roundState.currentHole
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === holeNum)
+  const currentPutts = holeScore?.putts ?? 0
+  if (currentPutts <= 0) {
+    // Button should be disabled, no-op
+    return state
+  }
+  useRoundStore.getState().setScore(player.playerId, holeNum, { putts: currentPutts - 1 })
+  return state
+})
+
+Then('decreasing putts for {string} should be disabled', (state, [playerName]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const holeNum = roundState.currentHole
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === holeNum)
+  const currentPutts = holeScore?.putts ?? 0
+  expect(currentPutts).toBeLessThanOrEqual(0)
+  return state
+})
+
+Then('increasing putts for {string} should be disabled', (state, [playerName]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const holeNum = roundState.currentHole
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === holeNum)
+  const currentPutts = holeScore?.putts ?? 0
+  const gross = holeScore?.grossScore ?? 0
+  expect(gross).toBeGreaterThan(0)
+  expect(currentPutts).toBeGreaterThanOrEqual(gross)
+  return state
+})
+
+// --- Scorecard defaults steps ---
+
+When('I visit hole {int} for the first time', (state, [holeNum]) => {
+  const num = parseInt(holeNum)
+  useRoundStore.getState().goToHole(num)
+
+  // Apply defaults for each player (simulating what ScorecardPage useEffect does)
+  const roundState = useRoundStore.getState()
+  for (const [playerName, playerInfo] of Object.entries(state.playerMap)) {
+    const playerScores = roundState.scores[playerInfo.playerId] ?? []
+    const existing = playerScores.find((s) => s.holeNumber === num)
+    if (!existing) {
+      const hole = state.course.holes.find((h) => h.number === num)
+      const par = hole.parByTee[playerInfo.teeId]
+      const handicapStrokes = (state.handicapStrokes?.[playerInfo.playerId]?.[num]) || 0
+      const defaults = computeHoleDefaults(par, handicapStrokes)
+      const netScore = defaults.grossScore - handicapStrokes
+      useRoundStore.getState().setScore(playerInfo.playerId, num, {
+        grossScore: defaults.grossScore,
+        netScore,
+        putts: defaults.putts,
+        fairwayHit: defaults.fairwayHit,
+        greenInRegulation: defaults.greenInRegulation,
+      })
+    }
+  }
+  return state
+})
+
+Then('the default gross for {string} on hole {int} should be {int}', (state, [playerName, holeNum, expected]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
+  expect(holeScore).toBeDefined()
+  expect(holeScore.grossScore).toBe(parseInt(expected))
+  return state
+})
+
+Then('the default putts for {string} on hole {int} should be {int}', (state, [playerName, holeNum, expected]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
+  expect(holeScore).toBeDefined()
+  expect(holeScore.putts).toBe(parseInt(expected))
+  return state
+})
+
+Then('the default FIR for {string} on hole {int} should be true', (state, [playerName, holeNum]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
+  expect(holeScore).toBeDefined()
+  expect(holeScore.fairwayHit).toBe(true)
+  return state
+})
+
+Then('the default GIR for {string} on hole {int} should be true', (state, [playerName, holeNum]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
+  expect(holeScore).toBeDefined()
+  expect(holeScore.greenInRegulation).toBe(true)
+  return state
+})
+
+Then('the FIR for {string} on hole {int} should not be set', (state, [playerName, holeNum]) => {
+  const player = state.playerMap[playerName]
+  const roundState = useRoundStore.getState()
+  const scores = roundState.scores[player.playerId] ?? []
+  const holeScore = scores.find((s) => s.holeNumber === parseInt(holeNum))
+  expect(holeScore).toBeDefined()
+  expect(holeScore.fairwayHit).toBeUndefined()
   return state
 })

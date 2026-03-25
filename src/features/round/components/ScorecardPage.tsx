@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
 import { useRound } from '@/features/round/hooks/useRound'
+import { computeHoleDefaults } from '@/lib/score-defaults'
 import { HoleScoreEntry } from './HoleScoreEntry'
 import { HoleNavigation } from './HoleNavigation'
 import { ScoreSummaryBar } from './ScoreSummaryBar'
@@ -43,6 +44,28 @@ export default function ScorecardPage() {
     completeRound,
   } = useRound()
 
+  // Apply defaults on first visit to a hole
+  useEffect(() => {
+    if (!course || loading || currentHoleInfo.length === 0) return
+
+    for (const playerInfo of currentHoleInfo) {
+      const playerScores = scores[playerInfo.playerId] ?? []
+      const existing = playerScores.find((s) => s.holeNumber === currentHole)
+      if (!existing) {
+        const defaults = computeHoleDefaults(
+          playerInfo.holeInfo.par,
+          playerInfo.holeInfo.handicapStrokes,
+        )
+        setScore(playerInfo.playerId, currentHole, {
+          grossScore: defaults.grossScore,
+          putts: defaults.putts,
+          fairwayHit: defaults.fairwayHit,
+          greenInRegulation: defaults.greenInRegulation,
+        })
+      }
+    }
+  }, [currentHole, course, loading, currentHoleInfo, scores, setScore])
+
   if (!isActive) {
     return null
   }
@@ -76,20 +99,6 @@ export default function ScorecardPage() {
           </Button>
         </Group>
 
-        {currentHoleInfo.length > 0 && (
-          <Group justify="center" gap="lg">
-            <Text size="sm" c="dimmed">
-              {t('round:par')}: {currentHoleInfo[0].holeInfo.par}
-            </Text>
-            <Text size="sm" c="dimmed">
-              {t('round:distance')}: {currentHoleInfo[0].holeInfo.distance}
-            </Text>
-            <Text size="sm" c="dimmed">
-              {t('round:handicap')}: {currentHoleInfo[0].holeInfo.handicap}
-            </Text>
-          </Group>
-        )}
-
         {currentHoleInfo.map((playerInfo) => {
           const playerScores = scores[playerInfo.playerId] ?? []
           const holeScore = playerScores.find((s) => s.holeNumber === currentHole)
@@ -106,6 +115,8 @@ export default function ScorecardPage() {
               key={playerInfo.playerId}
               playerName={playerInfo.playerName}
               par={playerInfo.holeInfo.par}
+              distance={playerInfo.holeInfo.distance}
+              handicap={playerInfo.holeInfo.handicap}
               handicapStrokes={playerInfo.holeInfo.handicapStrokes}
               score={holeScore}
               netScore={netScore}

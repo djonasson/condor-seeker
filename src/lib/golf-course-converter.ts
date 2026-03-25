@@ -97,8 +97,8 @@ export function convertApiCourse(
   const holes: Hole[] = []
   for (let holeNum = 1; holeNum <= maxHoles; holeNum++) {
     const parByTee: Record<string, number> = {}
+    const handicapByTee: Record<string, number> = {}
     const distanceByTee: Record<string, number> = {}
-    let handicap = 0
 
     for (let teeIdx = 0; teeIdx < filteredTees.length; teeIdx++) {
       const { teeBox } = filteredTees[teeIdx]
@@ -108,16 +108,13 @@ export function convertApiCourse(
 
       parByTee[teeId] = holeData.par
       distanceByTee[teeId] = holeData.yardage * 0.9144
-
-      if (handicap === 0 && holeData.handicap) {
-        handicap = holeData.handicap
-      }
+      handicapByTee[teeId] = holeData.handicap ?? 0
     }
 
     holes.push({
       number: holeNum,
       parByTee,
-      handicap,
+      handicapByTee,
       distanceByTee,
     })
   }

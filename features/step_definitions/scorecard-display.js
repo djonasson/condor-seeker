@@ -19,10 +19,14 @@ function buildCourse(courseName, clubName, teeData, holeData) {
       parByTee[tee.id] = parseInt(h.par)
       distanceByTee[tee.id] = parseInt(h.distance)
     }
+    const handicapByTee = {}
+    for (const tee of tees) {
+      handicapByTee[tee.id] = parseInt(h.handicap)
+    }
     return {
       number: parseInt(h.hole),
       parByTee,
-      handicap: parseInt(h.handicap),
+      handicapByTee,
       distanceByTee,
     }
   })
@@ -87,9 +91,10 @@ When('I view the traditional scorecard', (state) => {
 Then('I should see a {string} row showing the handicap index for each hole', (state, [label]) => {
   expect(label).toBe('HCP')
   // Verify hole data has handicap values
+  const firstTeeId = state.course.tees[0].id
   for (const hole of state.course.holes) {
-    expect(hole.handicap).toBeDefined()
-    expect(hole.handicap).toBeGreaterThan(0)
+    expect(hole.handicapByTee[firstTeeId]).toBeDefined()
+    expect(hole.handicapByTee[firstTeeId]).toBeGreaterThan(0)
   }
   return state
 })
@@ -97,7 +102,8 @@ Then('I should see a {string} row showing the handicap index for each hole', (st
 Then('hole {int} should show handicap {int}', (state, [holeNum, expectedHcp]) => {
   const hole = state.course.holes.find((h) => h.number === parseInt(holeNum))
   expect(hole).toBeDefined()
-  expect(hole.handicap).toBe(parseInt(expectedHcp))
+  const firstTeeId = state.course.tees[0].id
+  expect(hole.handicapByTee[firstTeeId]).toBe(parseInt(expectedHcp))
   return state
 })
 

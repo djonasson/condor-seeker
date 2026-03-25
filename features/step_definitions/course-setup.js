@@ -30,10 +30,14 @@ function buildHoles(numHoles, tees) {
       parByTee[tee.id] = i <= 4 ? 5 : i <= 10 ? 4 : 3
       distanceByTee[tee.id] = 300 + i * 10
     }
+    const handicapByTee = {}
+    for (const tee of tees) {
+      handicapByTee[tee.id] = i
+    }
     holes.push({
       number: i,
       parByTee,
-      handicap: i,
+      handicapByTee,
       distanceByTee,
     })
   }
@@ -144,7 +148,11 @@ When('I proceed to hole details with empty distances', (state) => {
       parByTee[tee.id] = 4
       distanceByTee[tee.id] = 0
     }
-    holes.push({ number: i, parByTee, handicap: i, distanceByTee })
+    const handicapByTee = {}
+    for (const tee of state.tees) {
+      handicapByTee[tee.id] = i
+    }
+    holes.push({ number: i, parByTee, handicapByTee, distanceByTee })
   }
   return { ...state, holes }
 })

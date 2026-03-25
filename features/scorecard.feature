@@ -108,3 +108,29 @@ Feature: Scorecard
     When I cancel abandoning the round
     Then I should still be on the scorecard page
     And the active round should still exist
+
+  Scenario: Increase putts with plus button
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 5 for "Dustin Johnson"
+    And I enter 1 putts for "Dustin Johnson" on hole 1
+    And I increase putts for "Dustin Johnson"
+    Then the putts for hole 1 should be 2 for "Dustin Johnson"
+
+  Scenario: Decrease putts with minus button
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 5 for "Dustin Johnson"
+    And I enter 3 putts for "Dustin Johnson" on hole 1
+    And I decrease putts for "Dustin Johnson"
+    Then the putts for hole 1 should be 2 for "Dustin Johnson"
+
+  Scenario: Putts minus disabled at zero
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 5 for "Dustin Johnson"
+    And I enter 0 putts for "Dustin Johnson" on hole 1
+    Then decreasing putts for "Dustin Johnson" should be disabled
+
+  Scenario: Putts plus disabled when putts equals gross
+    Given I am on hole 1 with par 4
+    When I enter a gross score of 3 for "Dustin Johnson"
+    And I enter 3 putts for "Dustin Johnson" on hole 1
+    Then increasing putts for "Dustin Johnson" should be disabled

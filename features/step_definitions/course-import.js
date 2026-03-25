@@ -28,7 +28,11 @@ function buildValidCourseJson(name, numHoles) {
       parByTee[tee.id] = 4
       distanceByTee[tee.id] = 350
     }
-    holes.push({ number: i, parByTee, handicap: i, distanceByTee })
+    const handicapByTee = {}
+    for (const tee of tees) {
+      handicapByTee[tee.id] = i
+    }
+    holes.push({ number: i, parByTee, handicapByTee, distanceByTee })
   }
   return { id: uuidv4(), name, holes, tees }
 }

@@ -119,7 +119,7 @@ function NineHoleSection({
             {sortedHoles.map((hole) => (
               <Table.Td key={hole.number} ta="center">
                 <Text size="xs" c="dimmed">
-                  {hole.handicap}
+                  {hole.handicapByTee[firstTeeId] ?? '-'}
                 </Text>
               </Table.Td>
             ))}

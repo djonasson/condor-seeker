@@ -24,7 +24,7 @@ function buildCourse(name, starred = false) {
     holes: Array.from({ length: 18 }, (_, i) => ({
       number: i + 1,
       parByTee: { default: 4 },
-      handicap: i + 1,
+      handicapByTee: { default: i + 1 },
       distanceByTee: { default: 300 },
     })),
     tees: [{ id: 'default', name: 'White', courseRating: 72, slopeRating: 113, totalDistance: 5400 }],

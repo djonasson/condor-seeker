@@ -12,7 +12,7 @@ interface TeeFormData {
 interface HoleFormData {
   number: number
   parByTee: Record<string, number>
-  handicap: number
+  handicapByTee: Record<string, number>
   distanceByTee: Record<string, number>
 }
 
@@ -64,22 +64,24 @@ export function useCourseForm(existingCourse?: Course) {
         return existingCourse.holes.map((h) => ({
           number: h.number,
           parByTee: { ...h.parByTee },
-          handicap: h.handicap,
+          handicapByTee: { ...h.handicapByTee },
           distanceByTee: { ...h.distanceByTee },
         }))
       }
       return Array.from({ length: stepOne.holesCount }, (_, i) => {
         const holeNum = i + 1
         const parByTee: Record<string, number> = {}
+        const handicapByTee: Record<string, number> = {}
         const distanceByTee: Record<string, number> = {}
         for (const tee of stepOne.tees) {
           parByTee[tee.id] = 4
+          handicapByTee[tee.id] = holeNum
           distanceByTee[tee.id] = 0
         }
         return {
           number: holeNum,
           parByTee,
-          handicap: holeNum,
+          handicapByTee,
           distanceByTee,
         }
       })
@@ -108,6 +110,7 @@ export function useCourseForm(existingCourse?: Course) {
       prev.map((hole) => ({
         ...hole,
         parByTee: { ...hole.parByTee, [newTee.id]: 4 },
+        handicapByTee: { ...hole.handicapByTee, [newTee.id]: hole.number },
         distanceByTee: { ...hole.distanceByTee, [newTee.id]: 0 },
       })),
     )
@@ -121,10 +124,17 @@ export function useCourseForm(existingCourse?: Course) {
     setHoles((prev) =>
       prev.map((hole) => {
         const newParByTee = { ...hole.parByTee }
+        const newHandicapByTee = { ...hole.handicapByTee }
         const newDistanceByTee = { ...hole.distanceByTee }
         delete newParByTee[teeId]
+        delete newHandicapByTee[teeId]
         delete newDistanceByTee[teeId]
-        return { ...hole, parByTee: newParByTee, distanceByTee: newDistanceByTee }
+        return {
+          ...hole,
+          parByTee: newParByTee,
+          handicapByTee: newHandicapByTee,
+          distanceByTee: newDistanceByTee,
+        }
       }),
     )
   }, [])
@@ -141,8 +151,8 @@ export function useCourseForm(existingCourse?: Course) {
       setHoles((prev) =>
         prev.map((hole) => {
           if (hole.number !== holeNumber) return hole
-          if (field === 'handicap') {
-            return { ...hole, handicap: value }
+          if (field === 'handicap' && teeId) {
+            return { ...hole, handicapByTee: { ...hole.handicapByTee, [teeId]: value } }
           }
           if (field === 'par' && teeId) {
             return { ...hole, parByTee: { ...hole.parByTee, [teeId]: value } }
@@ -191,12 +201,14 @@ export function useCourseForm(existingCourse?: Course) {
           // Ensure all tees are represented
           return prev.map((hole) => {
             const parByTee = { ...hole.parByTee }
+            const handicapByTee = { ...hole.handicapByTee }
             const distanceByTee = { ...hole.distanceByTee }
             for (const tee of stepOne.tees) {
               if (parByTee[tee.id] === undefined) parByTee[tee.id] = 4
+              if (handicapByTee[tee.id] === undefined) handicapByTee[tee.id] = hole.number
               if (distanceByTee[tee.id] === undefined) distanceByTee[tee.id] = 0
             }
-            return { ...hole, parByTee, distanceByTee }
+            return { ...hole, parByTee, handicapByTee, distanceByTee }
           })
         }
         return buildInitialHoles(stepOne)
@@ -231,7 +243,7 @@ export function useCourseForm(existingCourse?: Course) {
       const courseHoles: Hole[] = holes.map((h) => ({
         number: h.number,
         parByTee: h.parByTee,
-        handicap: h.handicap,
+        handicapByTee: h.handicapByTee,
         distanceByTee: h.distanceByTee,
       }))
 

@@ -42,11 +42,14 @@ function isValidTee(obj: unknown): obj is Tee {
 function isValidHole(obj: unknown): obj is Hole {
   if (typeof obj !== 'object' || obj === null) return false
   const o = obj as Record<string, unknown>
+  const hasHandicap =
+    typeof o.handicap === 'number' ||
+    (typeof o.handicapByTee === 'object' && o.handicapByTee !== null)
   return (
     typeof o.number === 'number' &&
     typeof o.parByTee === 'object' &&
     o.parByTee !== null &&
-    typeof o.handicap === 'number' &&
+    hasHandicap &&
     typeof o.distanceByTee === 'object' &&
     o.distanceByTee !== null
   )

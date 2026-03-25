@@ -15,7 +15,7 @@ function buildCourse(name) {
   return {
     id: uuidv4(),
     name,
-    holes: [{ number: 1, parByTee: { [teeId]: 4 }, handicap: 1, distanceByTee: { [teeId]: 400 } }],
+    holes: [{ number: 1, parByTee: { [teeId]: 4 }, handicapByTee: { [teeId]: 1 }, distanceByTee: { [teeId]: 400 } }],
     tees: [{ id: teeId, name: 'White', courseRating: 72, slopeRating: 113, totalDistance: 6500 }],
   }
 }

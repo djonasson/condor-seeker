@@ -99,18 +99,16 @@ export function useRound() {
   const strokeAllocationsWithHandicap = useMemo(() => {
     if (!course) return {} as Record<string, number[]>
 
-    const holeHandicaps = course.holes
-      .slice()
-      .sort((a, b) => a.number - b.number)
-      .map((h) => h.handicap)
+    const sortedHoles = course.holes.slice().sort((a, b) => a.number - b.number)
 
     const allocations: Record<string, number[]> = {}
     for (const player of players) {
       const tee = course.tees.find((t: Tee) => t.id === player.teeId)
       if (!tee) {
-        allocations[player.playerId] = holeHandicaps.map(() => 0)
+        allocations[player.playerId] = sortedHoles.map(() => 0)
         continue
       }
+      const holeHandicaps = sortedHoles.map((h) => h.handicapByTee[player.teeId] ?? 0)
       const totalPar = course.holes.reduce(
         (sum, h: Hole) => sum + (h.parByTee[player.teeId] ?? 0),
         0,
@@ -144,7 +142,7 @@ export function useRound() {
           number: hole.number,
           par: hole.parByTee[player.teeId] ?? 0,
           distance: displayDistance(hole.distanceByTee[player.teeId] ?? 0, distanceUnit),
-          handicap: hole.handicap,
+          handicap: hole.handicapByTee[player.teeId] ?? 0,
           handicapStrokes: alloc[currentHole - 1] ?? 0,
         },
       }
@@ -203,7 +201,7 @@ export function useRound() {
             number: hole.number,
             par: hole.parByTee[player.teeId] ?? 0,
             distance: displayDistance(hole.distanceByTee[player.teeId] ?? 0, distanceUnit),
-            handicap: hole.handicap,
+            handicap: hole.handicapByTee[player.teeId] ?? 0,
             handicapStrokes: alloc[holeNumber - 1] ?? 0,
           },
         }

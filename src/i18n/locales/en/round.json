@@ -49,5 +49,7 @@
   "in": "In",
   "score": "Score",
   "courseRating": "CR",
-  "slope": "Slope"
+  "slope": "Slope",
+  "decreasePutts": "Decrease putts",
+  "increasePutts": "Increase putts"
 }
