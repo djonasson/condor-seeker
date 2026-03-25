@@ -4,6 +4,7 @@ export const DEFAULT_SETTINGS: Settings = {
   distanceUnit: 'meters',
   temperatureUnit: 'celsius',
   theme: 'light',
+  primaryColor: 'cyan',
   language: 'en',
   storageBackend: 'local',
   golfCourseApiKey: '',

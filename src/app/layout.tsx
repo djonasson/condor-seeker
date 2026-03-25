@@ -7,7 +7,14 @@ import {
   UnstyledButton,
   useMantineColorScheme,
 } from '@mantine/core'
-import { IconHome2, IconGolf, IconHistory, IconChartBar, IconSettings } from '@tabler/icons-react'
+import {
+  IconHome2,
+  IconGolf,
+  IconHistory,
+  IconChartBar,
+  IconSettings,
+  IconPalette,
+} from '@tabler/icons-react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { InstallPrompt } from '@/components/InstallPrompt'
@@ -24,6 +31,7 @@ function BottomNav() {
     { label: t('history'), path: '/history', icon: IconHistory },
     { label: t('stats'), path: '/stats', icon: IconChartBar },
     { label: t('settings'), path: '/settings', icon: IconSettings },
+    ...(import.meta.env.DEV ? [{ label: 'UI', path: '/ui', icon: IconPalette }] : []),
   ]
 
   return (

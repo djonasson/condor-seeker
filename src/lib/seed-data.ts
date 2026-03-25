@@ -5,6 +5,7 @@ export const SEED_DATA: AppData = {
     distanceUnit: 'meters',
     temperatureUnit: 'celsius',
     theme: 'light',
+    primaryColor: 'cyan',
     language: 'en',
     storageBackend: 'local',
     golfCourseApiKey: '',

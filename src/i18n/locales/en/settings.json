@@ -16,5 +16,6 @@
   "apiKey": "GolfCourseAPI API Key",
   "apiKeyPlaceholder": "Enter your API key",
   "apiSection": "API Integration",
+  "primaryColor": "Primary Color",
   "apiKeyHelper": "Get your free API key at"
 }

@@ -66,11 +66,11 @@ export function HoleNavigation({
               fontWeight: hole === currentHole ? 700 : 400,
               backgroundColor:
                 hole === currentHole
-                  ? 'var(--mantine-color-green-6)'
+                  ? 'var(--mantine-primary-color-6)'
                   : 'var(--mantine-color-default)',
               color:
                 hole === currentHole ? 'var(--mantine-color-white)' : 'var(--mantine-color-text)',
-              border: `1px solid ${hole === currentHole ? 'var(--mantine-color-green-6)' : 'var(--mantine-color-default-border)'}`,
+              border: `1px solid ${hole === currentHole ? 'var(--mantine-primary-color-6)' : 'var(--mantine-color-default-border)'}`,
             }}
           >
             {hole}

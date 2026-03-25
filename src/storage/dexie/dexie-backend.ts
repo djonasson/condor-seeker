@@ -77,6 +77,7 @@ export class DexieStorageBackend implements StorageBackend {
       distanceUnit: row.distanceUnit,
       temperatureUnit: row.temperatureUnit,
       theme: row.theme,
+      primaryColor: row.primaryColor ?? 'cyan',
       language: row.language,
       storageBackend: row.storageBackend,
       golfCourseApiKey: row.golfCourseApiKey ?? '',

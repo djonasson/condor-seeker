@@ -18,6 +18,9 @@ const HistoryListPage = lazy(() => import('@/features/history/components/History
 const RoundDetailPage = lazy(() => import('@/features/history/components/RoundDetailPage'))
 const StatsPage = lazy(() => import('@/features/stats/components/StatsPage'))
 const ImportExportPage = lazy(() => import('@/features/import-export/components/ImportExportPage'))
+const UiShowcasePage = import.meta.env.DEV
+  ? lazy(() => import('@/features/dev/components/UiShowcasePage'))
+  : null
 
 function Loading() {
   return (
@@ -49,6 +52,7 @@ export function AppRouter() {
           <Route path="history/:id" element={<RoundDetailPage />} />
           <Route path="stats" element={<StatsPage />} />
           <Route path="import-export" element={<ImportExportPage />} />
+          {UiShowcasePage && <Route path="ui" element={<UiShowcasePage />} />}
         </Route>
       </Routes>
     </Suspense>

@@ -66,6 +66,7 @@ export type Settings = {
   distanceUnit: 'meters' | 'yards'
   temperatureUnit: 'celsius' | 'fahrenheit'
   theme: 'light' | 'dark'
+  primaryColor: string
   language: string
   storageBackend: 'local'
   golfCourseApiKey: string

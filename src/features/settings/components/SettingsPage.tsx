@@ -1,5 +1,6 @@
 import {
   Button,
+  ColorSwatch,
   Divider,
   Title,
   Stack,
@@ -10,9 +11,26 @@ import {
   Group,
   PasswordInput,
   Anchor,
+  useMantineTheme,
 } from '@mantine/core'
+import { IconCheck } from '@tabler/icons-react'
 import { useMantineColorScheme } from '@mantine/core'
 import { IconChevronRight, IconUsers, IconGolf, IconDatabaseExport } from '@tabler/icons-react'
+
+const PRIMARY_COLOR_OPTIONS = [
+  'red',
+  'pink',
+  'grape',
+  'violet',
+  'indigo',
+  'blue',
+  'cyan',
+  'teal',
+  'green',
+  'lime',
+  'yellow',
+  'orange',
+] as const
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -29,12 +47,15 @@ export default function SettingsPage() {
 
   const [apiKey, setApiKey] = useState('')
 
+  const mantineTheme = useMantineTheme()
   const theme = useAppStore((s) => s.theme)
+  const primaryColor = useAppStore((s) => s.primaryColor)
   const distanceUnit = useAppStore((s) => s.distanceUnit)
   const temperatureUnit = useAppStore((s) => s.temperatureUnit)
   const language = useAppStore((s) => s.language)
 
   const setTheme = useAppStore((s) => s.setTheme)
+  const setPrimaryColor = useAppStore((s) => s.setPrimaryColor)
   const setDistanceUnit = useAppStore((s) => s.setDistanceUnit)
   const setTemperatureUnit = useAppStore((s) => s.setTemperatureUnit)
   const setLanguage = useAppStore((s) => s.setLanguage)
@@ -51,6 +72,7 @@ export default function SettingsPage() {
   async function saveSettings(
     patch: Partial<{
       theme: 'light' | 'dark'
+      primaryColor: string
       distanceUnit: 'meters' | 'yards'
       temperatureUnit: 'celsius' | 'fahrenheit'
       language: string
@@ -65,6 +87,11 @@ export default function SettingsPage() {
     setTheme(next)
     setColorScheme(next)
     void saveSettings({ theme: next })
+  }
+
+  function handlePrimaryColorChange(color: string) {
+    setPrimaryColor(color)
+    void saveSettings({ primaryColor: color })
   }
 
   function handleDistanceUnitChange(value: string) {
@@ -104,6 +131,25 @@ export default function SettingsPage() {
             ]}
             fullWidth
           />
+        </div>
+
+        <div>
+          <Text fw={500} mb="xs">
+            {t('primaryColor')}
+          </Text>
+          <Group gap="xs">
+            {PRIMARY_COLOR_OPTIONS.map((color) => (
+              <UnstyledButton key={color} onClick={() => handlePrimaryColorChange(color)}>
+                <ColorSwatch
+                  color={mantineTheme.colors[color]?.[6] ?? color}
+                  size={32}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {primaryColor === color && <IconCheck size={16} color="white" />}
+                </ColorSwatch>
+              </UnstyledButton>
+            ))}
+          </Group>
         </div>
 
         <div>

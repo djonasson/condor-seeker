@@ -23,6 +23,7 @@ const staticRoutes: Record<string, RouteNode> = {
   '/stats': { parent: '/', labelKey: 'stats:title' },
   '/settings': { parent: '/', labelKey: 'settings:title' },
   '/import-export': { parent: '/', labelKey: 'import-export:title' },
+  '/ui': { parent: '/', labelKey: 'common:uiShowcase' },
 }
 
 interface DynamicPattern {

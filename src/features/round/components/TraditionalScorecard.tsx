@@ -71,7 +71,7 @@ function NineHoleSection({
   const from = sortedHoles[0]?.number ?? 1
   const to = sortedHoles[sortedHoles.length - 1]?.number ?? 9
 
-  const headerBg = 'var(--mantine-color-green-7)'
+  const headerBg = 'var(--mantine-primary-color-7)'
   const headerColor = 'white'
 
   return (
