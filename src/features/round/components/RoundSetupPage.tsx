@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Container, Group, Stack, Stepper, Title } from '@mantine/core'
+import { Button, Group, Stack, Stepper, Title } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
@@ -61,10 +61,8 @@ export default function RoundSetupPage() {
   }
 
   return (
-    <Container size="sm" py="md">
-      <Title order={2} mb="lg">
-        {t('round:setup')}
-      </Title>
+    <Stack gap="md">
+      <Title order={2}>{t('round:setup')}</Title>
 
       <Stepper active={active} onStepClick={setActive}>
         <Stepper.Step label={t('round:selectCourse')} allowStepSelect={active > 0}>
@@ -114,6 +112,6 @@ export default function RoundSetupPage() {
           </Button>
         )}
       </Group>
-    </Container>
+    </Stack>
   )
 }

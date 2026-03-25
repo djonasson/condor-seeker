@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Center, Container, Group, Loader, Modal, Stack, Text, Title } from '@mantine/core'
+import { Button, Center, Group, Loader, Modal, Stack, Text, Title } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
@@ -7,7 +7,6 @@ import { useRound } from '@/features/round/hooks/useRound'
 import { computeHoleDefaults } from '@/lib/score-defaults'
 import { HoleScoreEntry } from './HoleScoreEntry'
 import { HoleNavigation } from './HoleNavigation'
-import { ScoreSummaryBar } from './ScoreSummaryBar'
 
 export default function ScorecardPage() {
   const { t } = useTranslation()
@@ -37,6 +36,7 @@ export default function ScorecardPage() {
     course,
     currentHoleInfo,
     playerResults,
+    distanceUnitLabel,
     setScore,
     nextHole,
     prevHole,
@@ -90,89 +90,87 @@ export default function ScorecardPage() {
   const isLastHole = currentHole === totalHoles
 
   return (
-    <Container size="sm" py="md">
-      <Stack gap="md">
-        <Group justify="space-between" align="center">
-          <Title order={3}>{courseName}</Title>
-          <Button variant="subtle" size="xs" onClick={() => void navigate('/round/play/table')}>
-            {t('round:tableView')}
-          </Button>
-        </Group>
-
-        {currentHoleInfo.map((playerInfo) => {
-          const playerScores = scores[playerInfo.playerId] ?? []
-          const holeScore = playerScores.find((s) => s.holeNumber === currentHole)
-
-          const playerResult = playerResults.find((r) => r.playerId === playerInfo.playerId)
-          const holeResult = playerResult?.holeResults.find((r) => r.holeNumber === currentHole)
-
-          const netScore = holeScore
-            ? holeScore.grossScore - playerInfo.holeInfo.handicapStrokes
-            : 0
-
-          return (
-            <HoleScoreEntry
-              key={playerInfo.playerId}
-              playerName={playerInfo.playerName}
-              par={playerInfo.holeInfo.par}
-              distance={playerInfo.holeInfo.distance}
-              handicap={playerInfo.holeInfo.handicap}
-              handicapStrokes={playerInfo.holeInfo.handicapStrokes}
-              score={holeScore}
-              netScore={netScore}
-              points={holeResult?.points}
-              isStableford={isStableford}
-              onScoreChange={(update) => setScore(playerInfo.playerId, currentHole, update)}
-            />
-          )
-        })}
-
-        <ScoreSummaryBar
-          players={playerResults.map((r) => ({
-            playerName: r.playerName,
-            total: r.total,
-          }))}
-          isStableford={isStableford}
-        />
-
-        <HoleNavigation
-          currentHole={currentHole}
-          totalHoles={totalHoles}
-          onPrev={prevHole}
-          onNext={nextHole}
-          onGoToHole={goToHole}
-        />
-
-        {isLastHole && (
-          <Button color="green" size="md" fullWidth onClick={() => void completeRound()}>
-            {t('round:completeRound')}
-          </Button>
-        )}
-
-        <Button variant="subtle" color="red" size="xs" onClick={() => setAbandonModalOpen(true)}>
-          {t('round:abandonRound')}
+    <Stack gap="md">
+      <Group justify="space-between" align="center">
+        <Title order={3}>{courseName}</Title>
+        <Button variant="subtle" size="xs" onClick={() => void navigate('/round/play/table')}>
+          {t('round:tableView')}
         </Button>
+      </Group>
 
-        <Modal
-          opened={abandonModalOpen}
-          onClose={() => setAbandonModalOpen(false)}
-          title={t('round:abandonRound')}
-          centered
-          size="sm"
-        >
-          <Stack>
-            <Text>{t('round:abandonConfirm')}</Text>
-            <Group justify="flex-end">
-              <Button variant="default" onClick={() => setAbandonModalOpen(false)}>
-                {t('cancel')}
-              </Button>
-              <Button color="red" onClick={handleAbandonRound}>
-                {t('round:abandonRound')}
-              </Button>
-            </Group>
-          </Stack>
-        </Modal>
-      </Stack>
-    </Container>
+      {currentHoleInfo.map((playerInfo) => {
+        const playerScores = scores[playerInfo.playerId] ?? []
+        const holeScore = playerScores.find((s) => s.holeNumber === currentHole)
+
+        const playerResult = playerResults.find((r) => r.playerId === playerInfo.playerId)
+        const holeResult = playerResult?.holeResults.find((r) => r.holeNumber === currentHole)
+
+        const netScore = holeScore ? holeScore.grossScore - playerInfo.holeInfo.handicapStrokes : 0
+
+        const playerTotal = playerResult?.total
+
+        return (
+          <HoleScoreEntry
+            key={playerInfo.playerId}
+            playerName={playerInfo.playerName}
+            teeName={playerInfo.teeName}
+            handicapIndex={playerInfo.handicapIndex}
+            courseHandicap={playerInfo.courseHandicap}
+            par={playerInfo.holeInfo.par}
+            distance={playerInfo.holeInfo.distance}
+            distanceUnitLabel={distanceUnitLabel}
+            handicap={playerInfo.holeInfo.handicap}
+            handicapStrokes={playerInfo.holeInfo.handicapStrokes}
+            score={holeScore}
+            netScore={netScore}
+            points={holeResult?.points}
+            isStableford={isStableford}
+            totalGross={playerTotal?.totalGross ?? 0}
+            totalNet={playerTotal?.totalNet ?? 0}
+            totalToPar={playerTotal?.totalToPar ?? 0}
+            totalPoints={playerTotal?.totalPoints}
+            onScoreChange={(update) => setScore(playerInfo.playerId, currentHole, update)}
+          />
+        )
+      })}
+
+      <HoleNavigation
+        currentHole={currentHole}
+        totalHoles={totalHoles}
+        onPrev={prevHole}
+        onNext={nextHole}
+        onGoToHole={goToHole}
+      />
+
+      {isLastHole && (
+        <Button color="green" size="md" fullWidth onClick={() => void completeRound()}>
+          {t('round:completeRound')}
+        </Button>
+      )}
+
+      <Button variant="subtle" color="red" size="xs" onClick={() => setAbandonModalOpen(true)}>
+        {t('round:abandonRound')}
+      </Button>
+
+      <Modal
+        opened={abandonModalOpen}
+        onClose={() => setAbandonModalOpen(false)}
+        title={t('round:abandonRound')}
+        centered
+        size="sm"
+      >
+        <Stack>
+          <Text>{t('round:abandonConfirm')}</Text>
+          <Group justify="flex-end">
+            <Button variant="default" onClick={() => setAbandonModalOpen(false)}>
+              {t('cancel')}
+            </Button>
+            <Button color="red" onClick={handleAbandonRound}>
+              {t('round:abandonRound')}
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+    </Stack>
   )
 }

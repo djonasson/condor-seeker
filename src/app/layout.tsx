@@ -48,9 +48,13 @@ function BottomNav() {
             <Icon
               size={22}
               stroke={1.5}
-              color={isActive ? 'var(--mantine-color-green-6)' : 'var(--mantine-color-gray-6)'}
+              color={isActive ? 'var(--mantine-primary-color-6)' : 'var(--mantine-color-gray-6)'}
             />
-            <Text size="xs" c={isActive ? 'green.6' : 'gray.6'} fw={isActive ? 600 : 400}>
+            <Text
+              size="xs"
+              c={isActive ? 'var(--mantine-primary-color-6)' : 'gray.6'}
+              fw={isActive ? 600 : 400}
+            >
               {tab.label}
             </Text>
           </UnstyledButton>
@@ -129,7 +133,7 @@ export function Layout() {
           <Anchor
             fw={700}
             size="lg"
-            c="green"
+            c="var(--mantine-primary-color-filled)"
             underline="never"
             onClick={(e) => {
               e.preventDefault()

@@ -1,32 +1,54 @@
-import { ActionIcon, Checkbox, Group, NumberInput, Paper, Stack, Text } from '@mantine/core'
+import { ActionIcon, Box, Checkbox, Group, NumberInput, Paper, Stack, Text } from '@mantine/core'
 import { IconMinus, IconPlus } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import type { HoleScore } from '@/storage/types'
-import { clampPutts } from '@/lib/score-formatting'
+import { clampPutts, formatScoreToPar, getScoreToParColor } from '@/lib/score-formatting'
 
 type HoleScoreEntryProps = {
   playerName: string
+  teeName: string
+  handicapIndex: number
+  courseHandicap: number
   par: number
   distance?: number
+  distanceUnitLabel: string
   handicap?: number
   handicapStrokes: number
   score: HoleScore | undefined
   netScore: number
   points?: number
   isStableford: boolean
+  totalGross: number
+  totalNet: number
+  totalToPar: number
+  totalPoints?: number
   onScoreChange: (update: Partial<HoleScore>) => void
+}
+
+function toMantineColor(color: ReturnType<typeof getScoreToParColor>): string | undefined {
+  if (color === 'red') return 'red'
+  if (color === 'blue') return 'blue'
+  return undefined
 }
 
 export function HoleScoreEntry({
   playerName,
+  teeName,
+  handicapIndex,
+  courseHandicap,
   par,
   distance,
+  distanceUnitLabel,
   handicap,
   handicapStrokes,
   score,
   netScore,
   points,
   isStableford,
+  totalGross,
+  totalNet,
+  totalToPar,
+  totalPoints,
   onScoreChange,
 }: HoleScoreEntryProps) {
   const { t } = useTranslation()
@@ -53,31 +75,50 @@ export function HoleScoreEntry({
   }
 
   return (
-    <Paper withBorder p="sm" radius="md">
-      <Stack gap="xs">
+    <Paper withBorder radius="md" style={{ overflow: 'hidden' }}>
+      {/* Header */}
+      <Box bg="var(--mantine-color-gray-light)" px="sm" py="xs">
         <Group justify="space-between">
-          <Text fw={600} size="sm">
-            {playerName}
-          </Text>
-          {handicapStrokes > 0 && (
-            <Text size="xs" c="dimmed">
-              {t('round:strokes')}: {handicapStrokes}
+          <Group gap={6}>
+            <Text fw={600} size="sm">
+              {playerName}
             </Text>
-          )}
+            {teeName && (
+              <Text size="xs" c="dimmed">
+                ({teeName})
+              </Text>
+            )}
+          </Group>
+          <Group gap="xs">
+            <Text size="xs" c="dimmed">
+              {t('round:handicapIndex')}: {handicapIndex.toFixed(1)}
+            </Text>
+            <Text size="xs" c="dimmed">
+              {t('round:courseHandicap')}: {courseHandicap}
+            </Text>
+          </Group>
         </Group>
+      </Box>
 
+      {/* Body */}
+      <Stack gap="xs" px="sm" py="xs">
         <Group justify="center" gap="lg">
           <Text size="xs" c="dimmed">
             {t('round:par')}: {par}
           </Text>
           {distance !== undefined && (
             <Text size="xs" c="dimmed">
-              {t('round:distance')}: {distance}
+              {t('round:distance')}: {distance} {distanceUnitLabel}
             </Text>
           )}
           {handicap !== undefined && (
             <Text size="xs" c="dimmed">
               {t('round:hcp')}: {handicap}
+            </Text>
+          )}
+          {handicapStrokes > 0 && (
+            <Text size="xs" c="dimmed">
+              {t('round:strokes')}: {handicapStrokes}
             </Text>
           )}
         </Group>
@@ -200,6 +241,26 @@ export function HoleScoreEntry({
           />
         </Group>
       </Stack>
+
+      {/* Footer */}
+      <Box bg="var(--mantine-color-gray-light)" px="sm" py="xs">
+        <Group justify="center" gap="md">
+          <Text size="xs" c="dimmed">
+            {t('round:gross')}: {totalGross}
+          </Text>
+          <Text size="xs" c="dimmed">
+            {t('round:net')}: {totalNet}
+          </Text>
+          <Text size="xs" fw={700} c={toMantineColor(getScoreToParColor(totalToPar))}>
+            {formatScoreToPar(totalToPar)}
+          </Text>
+          {isStableford && totalPoints !== undefined && (
+            <Text size="xs" fw={700} c="blue">
+              {totalPoints} {t('round:points')}
+            </Text>
+          )}
+        </Group>
+      </Box>
     </Paper>
   )
 }

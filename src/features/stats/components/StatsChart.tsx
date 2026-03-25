@@ -21,7 +21,7 @@ export function StatsChart({ data }: StatsChartProps) {
         <Line
           type="monotone"
           dataKey="score"
-          stroke="var(--mantine-color-blue-6)"
+          stroke="var(--mantine-primary-color-6)"
           strokeWidth={2}
           dot={{ r: 4 }}
         />

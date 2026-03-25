@@ -1,6 +1,5 @@
 import {
   Button,
-  Container,
   Divider,
   Title,
   Stack,
@@ -88,10 +87,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <Container size="sm" py="xl">
-      <Title order={2} mb="lg">
-        {t('title')}
-      </Title>
+    <Stack gap="md">
+      <Title order={2}>{t('title')}</Title>
 
       <Stack gap="lg">
         <div>
@@ -250,6 +247,6 @@ export default function SettingsPage() {
           </>
         )}
       </Stack>
-    </Container>
+    </Stack>
   )
 }

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
 import { useStorage } from '@/hooks/useStorage'
 import { useAppStore } from '@/stores/app-store'
-import { displayDistance } from '@/lib/distance'
+import { displayDistance, getUnitLabel } from '@/lib/distance'
 import { getScoringStrategy } from '@/features/round/scoring'
 import { calculateCourseHandicap, allocateStrokes } from '@/lib/handicap'
 import type { Course, Hole, Tee } from '@/storage/types'
@@ -21,6 +21,9 @@ type PlayerHoleInfo = {
   playerId: string
   playerName: string
   teeId: string
+  teeName: string
+  handicapIndex: number
+  courseHandicap: number
   holeInfo: HoleInfo
 }
 
@@ -96,16 +99,22 @@ export function useRound() {
     }
   }, [players, storage])
 
-  const strokeAllocationsWithHandicap = useMemo(() => {
-    if (!course) return {} as Record<string, number[]>
+  const handicapData = useMemo(() => {
+    if (!course)
+      return {
+        allocations: {} as Record<string, number[]>,
+        courseHandicaps: {} as Record<string, number>,
+      }
 
     const sortedHoles = course.holes.slice().sort((a, b) => a.number - b.number)
 
     const allocations: Record<string, number[]> = {}
+    const courseHandicaps: Record<string, number> = {}
     for (const player of players) {
       const tee = course.tees.find((t: Tee) => t.id === player.teeId)
       if (!tee) {
         allocations[player.playerId] = sortedHoles.map(() => 0)
+        courseHandicaps[player.playerId] = 0
         continue
       }
       const holeHandicaps = sortedHoles.map((h) => h.handicapByTee[player.teeId] ?? 0)
@@ -121,9 +130,12 @@ export function useRound() {
         totalPar,
       )
       allocations[player.playerId] = allocateStrokes(courseHcap, holeHandicaps)
+      courseHandicaps[player.playerId] = courseHcap
     }
-    return allocations
+    return { allocations, courseHandicaps }
   }, [course, players, playerHandicaps])
+
+  const strokeAllocationsWithHandicap = handicapData.allocations
 
   const currentHoleInfo = useMemo((): PlayerHoleInfo[] => {
     if (!course) return []
@@ -134,10 +146,14 @@ export function useRound() {
 
     return players.map((player) => {
       const alloc = strokeAllocationsWithHandicap[player.playerId] ?? []
+      const tee = course.tees.find((t: Tee) => t.id === player.teeId)
       return {
         playerId: player.playerId,
         playerName: player.playerName,
         teeId: player.teeId,
+        teeName: tee?.name ?? '',
+        handicapIndex: playerHandicaps[player.playerId] ?? 0,
+        courseHandicap: handicapData.courseHandicaps[player.playerId] ?? 0,
         holeInfo: {
           number: hole.number,
           par: hole.parByTee[player.teeId] ?? 0,
@@ -147,7 +163,15 @@ export function useRound() {
         },
       }
     })
-  }, [course, currentHole, players, strokeAllocationsWithHandicap, distanceUnit])
+  }, [
+    course,
+    currentHole,
+    players,
+    strokeAllocationsWithHandicap,
+    playerHandicaps,
+    handicapData,
+    distanceUnit,
+  ])
 
   const playerResults = useMemo((): PlayerResult[] => {
     if (!course) return []
@@ -193,10 +217,14 @@ export function useRound() {
 
       return players.map((player) => {
         const alloc = strokeAllocationsWithHandicap[player.playerId] ?? []
+        const tee = course.tees.find((t: Tee) => t.id === player.teeId)
         return {
           playerId: player.playerId,
           playerName: player.playerName,
           teeId: player.teeId,
+          teeName: tee?.name ?? '',
+          handicapIndex: playerHandicaps[player.playerId] ?? 0,
+          courseHandicap: handicapData.courseHandicaps[player.playerId] ?? 0,
           holeInfo: {
             number: hole.number,
             par: hole.parByTee[player.teeId] ?? 0,
@@ -207,7 +235,7 @@ export function useRound() {
         }
       })
     },
-    [course, players, strokeAllocationsWithHandicap, distanceUnit],
+    [course, players, strokeAllocationsWithHandicap, playerHandicaps, handicapData, distanceUnit],
   )
 
   const setScore = useCallback(
@@ -305,6 +333,8 @@ export function useRound() {
     navigate,
   ])
 
+  const distanceUnitLabel = getUnitLabel(distanceUnit)
+
   return {
     // State
     courseId,
@@ -323,6 +353,7 @@ export function useRound() {
     currentHoleInfo,
     playerResults,
     getHoleInfoForAll,
+    distanceUnitLabel,
 
     // Actions
     setScore,

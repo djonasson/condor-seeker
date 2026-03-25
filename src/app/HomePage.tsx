@@ -84,7 +84,6 @@ export default function HomePage() {
             <>
               <Text fw={500}>{t('round:newRound')}</Text>
               <Button
-                color="green"
                 fullWidth
                 size="md"
                 leftSection={<IconGolf size={18} />}
