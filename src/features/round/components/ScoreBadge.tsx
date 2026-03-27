@@ -7,8 +7,9 @@ type ScoreBadgeProps = {
   size?: number
 }
 
-const COLOR = 'var(--mantine-color-dark-6)'
-const BG = 'var(--mantine-color-dark-6)'
+const COLOR = 'var(--mantine-color-text)'
+const BG = 'var(--mantine-color-text)'
+const FILLED_TEXT = 'var(--mantine-color-body)'
 
 export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
   if (score <= 0) {
@@ -60,7 +61,7 @@ export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
             strokeWidth="1.5"
           />
         </svg>
-        <Text size="xs" fw={700} style={{ position: 'relative', zIndex: 1 }}>
+        <Text size="xs" fw={700} style={{ position: 'relative', zIndex: 1, color: FILLED_TEXT }}>
           {score}
         </Text>
       </Box>
@@ -147,7 +148,7 @@ export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
             borderRadius: '50%',
           }}
         >
-          <Text size="xs" fw={600} c="white">
+          <Text size="xs" fw={600} style={{ color: FILLED_TEXT }}>
             {score}
           </Text>
         </Box>
@@ -223,7 +224,7 @@ export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
           borderRadius: 2,
         }}
       >
-        <Text size="xs" fw={600} c="white">
+        <Text size="xs" fw={600} style={{ color: FILLED_TEXT }}>
           {score}
         </Text>
       </Box>
