@@ -1,16 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import {
-  Checkbox,
-  Group,
-  Select,
-  Stack,
-  TextInput,
-  Button,
-  Text,
-  Loader,
-  Center,
-  Paper,
-} from '@mantine/core'
+import { Card, Group, Select, Stack, TextInput, Button, Text, Loader, Center } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import { useStorage } from '@/hooks/useStorage'
 import type { Course, Player, Tee } from '@/storage/types'
@@ -117,46 +106,81 @@ export function PlayerSelector({ course, selectedPlayers, onChange }: PlayerSele
     <Stack gap="md">
       {savedPlayers.length > 0 && (
         <Stack gap="xs">
-          {savedPlayers.map((player) => (
-            <Paper key={player.id} p="sm" withBorder radius="sm">
-              <Group justify="space-between" wrap="nowrap">
-                <Checkbox
-                  label={player.name}
-                  checked={isSelected(player.id)}
-                  onChange={(e) => handleTogglePlayer(player, e.currentTarget.checked)}
-                />
-                {isSelected(player.id) && teeOptions.length > 1 && (
-                  <Select
-                    size="xs"
-                    label={t('round:selectTee')}
-                    data={teeOptions}
-                    value={
-                      selectedPlayers.find((p) => p.playerId === player.id)?.teeId ?? defaultTeeId
-                    }
-                    onChange={(value) => handleTeeChange(player.id, value ?? defaultTeeId)}
-                    w={160}
-                  />
-                )}
-              </Group>
-            </Paper>
-          ))}
+          {savedPlayers.map((player) => {
+            const selected = isSelected(player.id)
+            return (
+              <Card
+                key={player.id}
+                shadow="sm"
+                padding="md"
+                radius="md"
+                withBorder
+                style={{
+                  cursor: 'pointer',
+                  borderColor: selected ? 'var(--mantine-primary-color-filled)' : undefined,
+                  borderWidth: selected ? 2 : undefined,
+                }}
+                onClick={() => handleTogglePlayer(player, !selected)}
+              >
+                <Group justify="space-between" align="flex-start" wrap="nowrap">
+                  <div>
+                    <Text fw={600}>{player.name}</Text>
+                    <Text size="sm" c="dimmed">
+                      {t('round:handicapIndex')}: {player.handicapIndex.toFixed(1)}
+                      {player.gender && (
+                        <> · {player.gender.charAt(0).toUpperCase() + player.gender.slice(1)}</>
+                      )}
+                    </Text>
+                  </div>
+                  {selected && teeOptions.length > 1 && (
+                    <Select
+                      size="xs"
+                      label={t('round:selectTee')}
+                      data={teeOptions}
+                      value={
+                        selectedPlayers.find((p) => p.playerId === player.id)?.teeId ?? defaultTeeId
+                      }
+                      onChange={(value) => handleTeeChange(player.id, value ?? defaultTeeId)}
+                      onClick={(e) => e.stopPropagation()}
+                      w={160}
+                    />
+                  )}
+                </Group>
+              </Card>
+            )
+          })}
         </Stack>
       )}
 
       {adHocPlayers.map((player) => (
-        <Paper key={player.playerId} p="sm" withBorder radius="sm">
-          <Group justify="space-between" wrap="nowrap">
-            <Group gap="xs">
-              <Text size="sm">{player.playerName}</Text>
-              <Button
-                variant="subtle"
-                color="red"
-                size="compact-xs"
-                onClick={() => handleRemoveAdHoc(player.playerId)}
-              >
-                ✕
-              </Button>
-            </Group>
+        <Card
+          key={player.playerId}
+          shadow="sm"
+          padding="md"
+          radius="md"
+          withBorder
+          style={{
+            borderColor: 'var(--mantine-primary-color-filled)',
+            borderWidth: 2,
+          }}
+        >
+          <Group justify="space-between" align="flex-start" wrap="nowrap">
+            <div>
+              <Group gap="xs" align="center">
+                <Text fw={600}>{player.playerName}</Text>
+                <Button
+                  variant="subtle"
+                  color="red"
+                  size="compact-xs"
+                  onClick={() => handleRemoveAdHoc(player.playerId)}
+                >
+                  ✕
+                </Button>
+              </Group>
+              <Text size="sm" c="dimmed">
+                {t('round:handicapIndex')}: {player.handicapIndex.toFixed(1)}
+              </Text>
+            </div>
             {teeOptions.length > 1 && (
               <Select
                 size="xs"
@@ -168,7 +192,7 @@ export function PlayerSelector({ course, selectedPlayers, onChange }: PlayerSele
               />
             )}
           </Group>
-        </Paper>
+        </Card>
       ))}
 
       <Group gap="xs" align="flex-end">

@@ -143,7 +143,8 @@ export function CourseSelector({ selectedCourseId, onSelect }: CourseSelectorPro
           withBorder
           style={{
             cursor: 'pointer',
-            borderColor: selectedCourseId === course.id ? 'var(--mantine-color-blue-6)' : undefined,
+            borderColor:
+              selectedCourseId === course.id ? 'var(--mantine-primary-color-filled)' : undefined,
             borderWidth: selectedCourseId === course.id ? 2 : undefined,
           }}
           onClick={() => onSelect(course)}

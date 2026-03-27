@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Button, Group, Modal, NumberInput, Select, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useTranslation } from 'react-i18next'
@@ -29,6 +30,19 @@ export function ClubForm({ opened, onClose, onSave, initialValues }: ClubFormPro
       type: (value) => (value ? null : 'Club type is required'),
     },
   })
+
+  useEffect(() => {
+    if (opened) {
+      form.setValues({
+        type: initialValues?.type ?? '',
+        brand: initialValues?.brand ?? '',
+        carryDistance: initialValues
+          ? displayDistance(initialValues.carryDistance, distanceUnit)
+          : 0,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opened, initialValues])
 
   const handleSubmit = form.onSubmit((values) => {
     onSave({

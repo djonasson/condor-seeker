@@ -30,6 +30,7 @@
   "roundInProgress": "Round in Progress",
   "noActiveRound": "No active round",
   "holeOf": "Hole {{current}} of {{total}}",
+  "goToHole": "Go to Hole",
   "distance": "Distance",
   "handicap": "Handicap",
   "points": "Points",

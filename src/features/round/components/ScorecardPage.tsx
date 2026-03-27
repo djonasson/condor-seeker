@@ -7,7 +7,7 @@ import { useAppStore } from '@/stores/app-store'
 import { useRound } from '@/features/round/hooks/useRound'
 import { computeHoleDefaults } from '@/lib/score-defaults'
 import { HoleScoreEntry } from './HoleScoreEntry'
-import { HoleNavigation } from './HoleNavigation'
+import { HoleNavigationBar } from './HoleNavigation'
 
 export default function ScorecardPage() {
   const { t } = useTranslation()
@@ -81,7 +81,7 @@ export default function ScorecardPage() {
   const isLastHole = currentHole === totalHoles
 
   return (
-    <Stack gap="md">
+    <Stack gap="md" pb={50}>
       <Group justify="space-between" align="center">
         <Title order={3}>{courseName}</Title>
         <Button variant="subtle" size="xs" onClick={() => void navigate('/round/play/table')}>
@@ -125,19 +125,19 @@ export default function ScorecardPage() {
         )
       })}
 
-      <HoleNavigation
+      {isLastHole && (
+        <Button color="green" size="md" fullWidth onClick={() => void completeRound()}>
+          {t('round:completeRound')}
+        </Button>
+      )}
+
+      <HoleNavigationBar
         currentHole={currentHole}
         totalHoles={totalHoles}
         onPrev={prevHole}
         onNext={nextHole}
         onGoToHole={goToHole}
       />
-
-      {isLastHole && (
-        <Button color="green" size="md" fullWidth onClick={() => void completeRound()}>
-          {t('round:completeRound')}
-        </Button>
-      )}
     </Stack>
   )
 }
