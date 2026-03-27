@@ -56,3 +56,26 @@ Feature: Round Setup
     Then an active round should be initialized for "Torrey Pines"
     And the round should use "stroke" scoring
     And I should be navigated to the scorecard page
+
+  Scenario: Warning shown when starting new round during active round
+    Given an active round is in progress
+    When I open the round setup page
+    Then I should see an active round warning
+
+  Scenario: Confirming abandon clears the round and shows setup
+    Given an active round is in progress
+    When I open the round setup page
+    And I confirm abandoning the active round
+    Then the active round should be cleared
+    And I should see the round setup form
+
+  Scenario: Cancelling the warning does not clear the round
+    Given an active round is in progress
+    When I open the round setup page
+    And I cancel the active round warning
+    Then the active round should still be active
+
+  Scenario: No warning when no round is active
+    Given no round is in progress
+    When I open the round setup page
+    Then I should see the round setup form

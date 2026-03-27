@@ -164,3 +164,50 @@ Then('I should be navigated to the scorecard page', (state) => {
   expect(state.navigatedTo).toBe('scorecard')
   return state
 })
+
+// --- Active round warning steps ---
+
+Given('no round is in progress', (state) => {
+  useRoundStore.getState().clearRound()
+  return state
+})
+
+Given('an active round is in progress', (state) => {
+  useRoundStore.getState().initRound({
+    courseId: state.course?.id ?? 'test-course',
+    courseName: state.course?.name ?? 'Test Course',
+    scoringSystem: 'stroke',
+    players: [{ playerId: 'test-player', playerName: 'Test Player', teeId: 'test-tee' }],
+    totalHoles: 18,
+  })
+  return state
+})
+
+When('I open the round setup page', (state) => {
+  const isActive = useRoundStore.getState().isActive
+  return { ...state, showAbandonWarning: isActive, setupFormVisible: !isActive }
+})
+
+Then('I should see an active round warning', (state) => {
+  expect(state.showAbandonWarning).toBe(true)
+  return state
+})
+
+When('I confirm abandoning the active round', (state) => {
+  useRoundStore.getState().clearRound()
+  return { ...state, showAbandonWarning: false, setupFormVisible: true }
+})
+
+Then('I should see the round setup form', (state) => {
+  expect(state.setupFormVisible).toBe(true)
+  return state
+})
+
+When('I cancel the active round warning', (state) => {
+  return { ...state, showAbandonWarning: false, navigatedBack: true }
+})
+
+Then('the active round should still be active', (state) => {
+  expect(useRoundStore.getState().isActive).toBe(true)
+  return state
+})

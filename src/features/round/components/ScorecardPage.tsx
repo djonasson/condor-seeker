@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Button, Center, Group, Loader, Modal, Stack, Text, Title } from '@mantine/core'
+import { useEffect } from 'react'
+import { Button, Center, Group, Loader, Stack, Text, Title } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
@@ -13,14 +13,7 @@ export default function ScorecardPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const isActive = useRoundStore((s) => s.isActive)
-  const clearRound = useRoundStore((s) => s.clearRound)
   const enabledStats = useAppStore((s) => s.enabledStats)
-  const [abandonModalOpen, setAbandonModalOpen] = useState(false)
-
-  const handleAbandonRound = () => {
-    clearRound()
-    navigate('/')
-  }
 
   useEffect(() => {
     if (!isActive) {
@@ -145,30 +138,6 @@ export default function ScorecardPage() {
           {t('round:completeRound')}
         </Button>
       )}
-
-      <Button variant="subtle" color="red" size="xs" onClick={() => setAbandonModalOpen(true)}>
-        {t('round:abandonRound')}
-      </Button>
-
-      <Modal
-        opened={abandonModalOpen}
-        onClose={() => setAbandonModalOpen(false)}
-        title={t('round:abandonRound')}
-        centered
-        size="sm"
-      >
-        <Stack>
-          <Text>{t('round:abandonConfirm')}</Text>
-          <Group justify="flex-end">
-            <Button variant="default" onClick={() => setAbandonModalOpen(false)}>
-              {t('cancel')}
-            </Button>
-            <Button color="red" onClick={handleAbandonRound}>
-              {t('round:abandonRound')}
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
     </Stack>
   )
 }

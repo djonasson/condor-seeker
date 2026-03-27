@@ -1,23 +1,14 @@
 import { Stack, Title, Button, Card, Text, Group, SimpleGrid, Skeleton } from '@mantine/core'
-import {
-  IconGolf,
-  IconHistory,
-  IconChartBar,
-  IconUsers,
-  IconMap,
-  IconPlayerPlay,
-} from '@tabler/icons-react'
+import { IconGolf, IconHistory, IconChartBar, IconUsers, IconMap } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
-import { useRoundStore } from '@/stores/round-store'
 import { useStorage } from '@/hooks/useStorage'
 import type { Round, Course } from '@/storage/types'
 
 export default function HomePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const isActive = useRoundStore((s) => s.isActive)
   const storage = useStorage()
 
   const [recentRound, setRecentRound] = useState<Round | null>(null)
@@ -62,37 +53,15 @@ export default function HomePage() {
       {/* Primary action */}
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Stack gap="md">
-          {isActive ? (
-            <>
-              <Group gap="xs">
-                <IconPlayerPlay size={20} color="var(--mantine-color-orange-6)" />
-                <Text fw={500} c="orange.6">
-                  {t('round:roundInProgress')}
-                </Text>
-              </Group>
-              <Button
-                color="orange"
-                fullWidth
-                size="md"
-                leftSection={<IconPlayerPlay size={18} />}
-                onClick={() => navigate('/round/play')}
-              >
-                {t('continueRound')}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Text fw={500}>{t('round:newRound')}</Text>
-              <Button
-                fullWidth
-                size="md"
-                leftSection={<IconGolf size={18} />}
-                onClick={() => navigate('/round/new')}
-              >
-                {t('startRound')}
-              </Button>
-            </>
-          )}
+          <Text fw={500}>{t('round:newRound')}</Text>
+          <Button
+            fullWidth
+            size="md"
+            leftSection={<IconGolf size={18} />}
+            onClick={() => navigate('/round/new')}
+          >
+            {t('startRound')}
+          </Button>
         </Stack>
       </Card>
 

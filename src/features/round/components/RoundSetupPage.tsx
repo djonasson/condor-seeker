@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Group, Stack, Text, Title, UnstyledButton } from '@mantine/core'
+import { Button, Group, Modal, Stack, Text, Title, UnstyledButton } from '@mantine/core'
 import { IconCheck } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -73,7 +73,10 @@ export default function RoundSetupPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const initRound = useRoundStore((s) => s.initRound)
+  const isActive = useRoundStore((s) => s.isActive)
+  const clearRound = useRoundStore((s) => s.clearRound)
 
+  const [showAbandonWarning, setShowAbandonWarning] = useState(isActive)
   const [active, setActive] = useState(0)
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [selectedPlayers, setSelectedPlayers] = useState<SelectedPlayer[]>([])
@@ -122,58 +125,92 @@ export default function RoundSetupPage() {
     void navigate('/round/play')
   }
 
+  const handleConfirmAbandon = () => {
+    clearRound()
+    setShowAbandonWarning(false)
+  }
+
+  const handleCancelWarning = () => {
+    navigate(-1)
+  }
+
   return (
     <Stack gap="md">
       <Title order={2}>{t('round:setup')}</Title>
 
-      <StepIndicator active={active} stepLabels={stepLabels} onStepClick={setActive} />
-
-      {active === 0 && (
-        <Stack gap="md">
-          <CourseSelector
-            selectedCourseId={selectedCourse?.id ?? ''}
-            onSelect={setSelectedCourse}
-          />
+      <Modal
+        opened={showAbandonWarning}
+        onClose={handleCancelWarning}
+        title={t('round:abandonRound')}
+        centered
+        size="sm"
+        closeOnClickOutside={false}
+      >
+        <Stack>
+          <Text>{t('round:activeRoundWarning')}</Text>
+          <Group justify="flex-end">
+            <Button variant="default" onClick={handleCancelWarning}>
+              {t('cancel')}
+            </Button>
+            <Button color="red" onClick={handleConfirmAbandon}>
+              {t('round:abandonAndStartNew')}
+            </Button>
+          </Group>
         </Stack>
+      </Modal>
+
+      {showAbandonWarning ? null : (
+        <>
+          <StepIndicator active={active} stepLabels={stepLabels} onStepClick={setActive} />
+
+          {active === 0 && (
+            <Stack gap="md">
+              <CourseSelector
+                selectedCourseId={selectedCourse?.id ?? ''}
+                onSelect={setSelectedCourse}
+              />
+            </Stack>
+          )}
+
+          {active === 1 && (
+            <Stack gap="md">
+              <PlayerSelector
+                course={selectedCourse}
+                selectedPlayers={selectedPlayers}
+                onChange={setSelectedPlayers}
+              />
+            </Stack>
+          )}
+
+          {active === 2 && (
+            <Stack gap="md">
+              <ScoringSystemSelector
+                value={scoringSystem}
+                onChange={(v) => setScoringSystem(v as 'stroke' | 'stableford')}
+              />
+            </Stack>
+          )}
+
+          <Group justify="space-between" mt="xl">
+            <Button variant="default" onClick={handleBack} disabled={active === 0}>
+              {t('common:back')}
+            </Button>
+
+            {active < 2 ? (
+              <Button onClick={handleNext} disabled={!canProceedFromStep(active)}>
+                {t('common:next')}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleStartRound}
+                disabled={!selectedCourse || selectedPlayers.length === 0}
+              >
+                {t('round:startRound')}
+              </Button>
+            )}
+          </Group>
+        </>
       )}
-
-      {active === 1 && (
-        <Stack gap="md">
-          <PlayerSelector
-            course={selectedCourse}
-            selectedPlayers={selectedPlayers}
-            onChange={setSelectedPlayers}
-          />
-        </Stack>
-      )}
-
-      {active === 2 && (
-        <Stack gap="md">
-          <ScoringSystemSelector
-            value={scoringSystem}
-            onChange={(v) => setScoringSystem(v as 'stroke' | 'stableford')}
-          />
-        </Stack>
-      )}
-
-      <Group justify="space-between" mt="xl">
-        <Button variant="default" onClick={handleBack} disabled={active === 0}>
-          {t('common:back')}
-        </Button>
-
-        {active < 2 ? (
-          <Button onClick={handleNext} disabled={!canProceedFromStep(active)}>
-            {t('common:next')}
-          </Button>
-        ) : (
-          <Button
-            onClick={handleStartRound}
-            disabled={!selectedCourse || selectedPlayers.length === 0}
-          >
-            {t('round:startRound')}
-          </Button>
-        )}
-      </Group>
     </Stack>
   )
 }

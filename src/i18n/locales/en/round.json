@@ -71,5 +71,7 @@
   "yes": "Yes",
   "no": "No",
   "decrease": "Decrease {{stat}}",
-  "increase": "Increase {{stat}}"
+  "increase": "Increase {{stat}}",
+  "abandonAndStartNew": "Abandon & Start New",
+  "activeRoundWarning": "You have a round in progress. Starting a new round will abandon the current one."
 }
