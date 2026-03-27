@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Button, Center, Group, Loader, Stack, Text } from '@mantine/core'
+import { Button, Center, Group, Loader, Paper, Stack, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
@@ -26,6 +26,7 @@ export default function ScorecardTablePage() {
     loading,
     course,
     playerResults,
+    currentHoleInfo,
     goToHole,
     completeRound,
   } = useRound()
@@ -66,21 +67,34 @@ export default function ScorecardTablePage() {
         </Button>
       </Group>
 
-      <TraditionalScorecard
-        holes={course.holes}
-        tees={course.tees}
-        clubName={course.clubName}
-        courseName={courseName}
-        players={playerResults.map((r) => ({
-          playerId: r.playerId,
-          playerName: r.playerName,
-          teeId:
-            useRoundStore.getState().players.find((p) => p.playerId === r.playerId)?.teeId ?? '',
-          holeResults: r.holeResults,
-          total: r.total,
-        }))}
-        onCellClick={handleCellClick}
-      />
+      {playerResults.map((r) => {
+        const teeId =
+          useRoundStore.getState().players.find((p) => p.playerId === r.playerId)?.teeId ?? ''
+        const playerInfo = currentHoleInfo.find((p) => p.playerId === r.playerId)
+        return (
+          <Paper key={r.playerId} withBorder radius="sm" p="md">
+            <TraditionalScorecard
+              holes={course.holes}
+              tees={course.tees}
+              clubName={course.clubName}
+              courseName={courseName}
+              players={[
+                {
+                  playerId: r.playerId,
+                  playerName: r.playerName,
+                  teeId,
+                  handicapIndex: playerInfo?.handicapIndex,
+                  courseHandicap: playerInfo?.courseHandicap,
+                  holeResults: r.holeResults,
+                  total: r.total,
+                },
+              ]}
+              onCellClick={handleCellClick}
+              hideHeader
+            />
+          </Paper>
+        )
+      })}
 
       <ScoreSummaryBar
         players={playerResults.map((r) => ({

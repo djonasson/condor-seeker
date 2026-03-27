@@ -1,5 +1,6 @@
 import { Group, LoadingOverlay, Select, SimpleGrid, Stack, Table, Text, Title } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
+import { useAppStore } from '@/stores/app-store'
 import { useStats } from '../hooks/useStats'
 import { StatCard } from './StatCard'
 import { StatsChart } from './StatsChart'
@@ -8,6 +9,7 @@ import type { DateRangeOption } from '../hooks/useStats'
 export default function StatsPage() {
   const { t } = useTranslation('stats')
   const { stats, loading, filters, setFilters, courses } = useStats()
+  const dateFormat = useAppStore((s) => s.dateFormat)
 
   const dateRangeOptions = [
     { value: 'last30', label: t('last30') },
@@ -62,7 +64,7 @@ export default function StatsPage() {
           </SimpleGrid>
 
           <Title order={3}>{t('trends')}</Title>
-          <StatsChart data={stats.scoringTrend} />
+          <StatsChart data={stats.scoringTrend} dateFormat={dateFormat} />
 
           {stats.courseBreakdown.length > 1 && (
             <>

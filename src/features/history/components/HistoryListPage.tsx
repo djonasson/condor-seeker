@@ -15,11 +15,14 @@ import { IconTrash } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useRoundHistory } from '@/features/history/hooks/useRoundHistory'
+import { useAppStore } from '@/stores/app-store'
+import { formatDate } from '@/lib/date-format'
 
 export default function HistoryListPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { rounds, loading, deleteRound } = useRoundHistory()
+  const dateFormat = useAppStore((s) => s.dateFormat)
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   const handleDelete = async () => {
@@ -58,7 +61,7 @@ export default function HistoryListPage() {
               <Stack gap={4}>
                 <Text fw={500}>{round.courseName || t('history:unknownCourse')}</Text>
                 <Text size="sm" c="dimmed">
-                  {new Date(round.date).toLocaleDateString()}
+                  {formatDate(round.date, dateFormat)}
                 </Text>
                 <Group gap="md">
                   {round.playerRounds.map((pr) => (

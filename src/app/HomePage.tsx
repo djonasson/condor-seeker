@@ -4,12 +4,15 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import { useStorage } from '@/hooks/useStorage'
+import { useAppStore } from '@/stores/app-store'
+import { formatDate } from '@/lib/date-format'
 import type { Round, Course } from '@/storage/types'
 
 export default function HomePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const storage = useStorage()
+  const dateFormat = useAppStore((s) => s.dateFormat)
 
   const [recentRound, setRecentRound] = useState<Round | null>(null)
   const [courseName, setCourseName] = useState<string>('')
@@ -101,7 +104,7 @@ export default function HomePage() {
               <Stack gap={2}>
                 <Text fw={500}>{courseName}</Text>
                 <Text size="sm" c="dimmed">
-                  {new Date(recentRound.date).toLocaleDateString()}
+                  {formatDate(recentRound.date, dateFormat)}
                 </Text>
               </Stack>
               <Stack gap={2} align="flex-end">

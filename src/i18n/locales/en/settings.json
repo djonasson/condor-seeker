@@ -20,6 +20,7 @@
   "tabScoring": "Scoring",
   "tabData": "Data",
   "primaryColor": "Primary Color",
+  "dateFormat": "Date Format",
   "apiKeyHelper": "Get your free API key at",
   "statsToTrack": "Stats to Track",
   "statTierBasic": "Basic",

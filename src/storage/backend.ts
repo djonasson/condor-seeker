@@ -3,6 +3,7 @@ import type { AppData, Course, Player, Round, Settings } from '@/storage/types'
 export const DEFAULT_SETTINGS: Settings = {
   distanceUnit: 'meters',
   temperatureUnit: 'celsius',
+  dateFormat: 'DD/MM/YYYY',
   theme: 'light',
   primaryColor: 'cyan',
   language: 'en',

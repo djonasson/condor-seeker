@@ -70,9 +70,12 @@ export type HoleScore = {
   greenMissDirection?: GreenMissDirection
 }
 
+export type DateFormat = 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'
+
 export type Settings = {
   distanceUnit: 'meters' | 'yards'
   temperatureUnit: 'celsius' | 'fahrenheit'
+  dateFormat: DateFormat
   theme: 'light' | 'dark'
   primaryColor: string
   language: string

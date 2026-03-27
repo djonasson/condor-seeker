@@ -62,6 +62,8 @@ export default function SettingsPage() {
   const setDistanceUnit = useAppStore((s) => s.setDistanceUnit)
   const setTemperatureUnit = useAppStore((s) => s.setTemperatureUnit)
   const setLanguage = useAppStore((s) => s.setLanguage)
+  const dateFormat = useAppStore((s) => s.dateFormat)
+  const setDateFormat = useAppStore((s) => s.setDateFormat)
   const enabledStats = useAppStore((s) => s.enabledStats)
   const setEnabledStats = useAppStore((s) => s.setEnabledStats)
 
@@ -80,6 +82,7 @@ export default function SettingsPage() {
       primaryColor: string
       distanceUnit: 'meters' | 'yards'
       temperatureUnit: 'celsius' | 'fahrenheit'
+      dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'
       language: string
       enabledStats: string[]
     }>,
@@ -117,6 +120,13 @@ export default function SettingsPage() {
     setLanguage(value)
     void i18n.changeLanguage(value)
     void saveSettings({ language: value })
+  }
+
+  function handleDateFormatChange(value: string | null) {
+    if (!value) return
+    const next = value as 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD'
+    setDateFormat(next)
+    void saveSettings({ dateFormat: next })
   }
 
   function handleEnabledStatsChange(stats: string[]) {
@@ -180,6 +190,21 @@ export default function SettingsPage() {
                   value={language}
                   onChange={handleLanguageChange}
                   data={[{ label: 'English', value: 'en' }]}
+                />
+              </div>
+
+              <div>
+                <Text fw={500} mb="xs">
+                  {t('dateFormat')}
+                </Text>
+                <Select
+                  value={dateFormat}
+                  onChange={handleDateFormatChange}
+                  data={[
+                    { label: 'DD/MM/YYYY', value: 'DD/MM/YYYY' },
+                    { label: 'MM/DD/YYYY', value: 'MM/DD/YYYY' },
+                    { label: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
+                  ]}
                 />
               </div>
             </Stack>

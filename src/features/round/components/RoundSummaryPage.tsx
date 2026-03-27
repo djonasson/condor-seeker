@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Button, Center, Group, Loader, Stack, Text, Title } from '@mantine/core'
+import { Button, Center, Group, Loader, Paper, Stack, Text, Title } from '@mantine/core'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useStorage } from '@/hooks/useStorage'
+import { useAppStore } from '@/stores/app-store'
+import { formatDate } from '@/lib/date-format'
+import { calculateCourseHandicap } from '@/lib/handicap'
 import { TraditionalScorecard } from '@/features/round/components/TraditionalScorecard'
-import type { Course, Round } from '@/storage/types'
+import type { Course, Player, Round } from '@/storage/types'
 import type { HoleResult, RoundTotal } from '@/features/round/types'
 
 type PlayerColumn = {
@@ -20,10 +23,11 @@ export default function RoundSummaryPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const storage = useStorage()
+  const dateFormat = useAppStore((s) => s.dateFormat)
 
   const [round, setRound] = useState<Round | null>(null)
   const [course, setCourse] = useState<Course | null>(null)
-  const [playerNames, setPlayerNames] = useState<Record<string, string>>({})
+  const [playerMap, setPlayerMap] = useState<Record<string, Player>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -40,11 +44,11 @@ export default function RoundSummaryPage() {
       if (c) setCourse(c)
 
       const players = await storage.getPlayers()
-      const names: Record<string, string> = {}
+      const map: Record<string, Player> = {}
       for (const p of players) {
-        names[p.id] = p.name
+        map[p.id] = p
       }
-      setPlayerNames(names)
+      setPlayerMap(map)
 
       setLoading(false)
     }
@@ -71,28 +75,40 @@ export default function RoundSummaryPage() {
     )
   }
 
-  const playerColumns: PlayerColumn[] = round.playerRounds.map((pr) => ({
-    playerId: pr.playerId,
-    playerName: playerNames[pr.playerId] ?? pr.playerId,
-    teeId: pr.teeId,
-    holeResults: pr.holeScores.map((hs) => {
-      const hole = course.holes.find((h) => h.number === hs.holeNumber)
-      const par = hole?.parByTee[pr.teeId] ?? 0
-      return {
-        holeNumber: hs.holeNumber,
-        grossScore: hs.grossScore,
-        netScore: hs.netScore,
-        par,
-        scoreToPar: hs.grossScore - par,
-      }
-    }),
-    total: {
-      totalGross: pr.totalGross,
-      totalNet: pr.totalNet,
-      totalToPar:
-        pr.totalGross - course.holes.reduce((sum, h) => sum + (h.parByTee[pr.teeId] ?? 0), 0),
-    },
-  }))
+  const playerColumns: PlayerColumn[] = round.playerRounds.map((pr) => {
+    const player = playerMap[pr.playerId]
+    const tee = course.tees.find((te) => te.id === pr.teeId)
+    const handicapIndex = player?.handicapIndex ?? 0
+    const totalPar = course.holes.reduce((sum, h) => sum + (h.parByTee[pr.teeId] ?? 0), 0)
+    const courseHcap = tee
+      ? calculateCourseHandicap(handicapIndex, tee.slopeRating, tee.courseRating, totalPar)
+      : 0
+
+    return {
+      playerId: pr.playerId,
+      playerName: player?.name ?? pr.playerId,
+      teeId: pr.teeId,
+      handicapIndex,
+      courseHandicap: courseHcap,
+      holeResults: pr.holeScores.map((hs) => {
+        const hole = course.holes.find((h) => h.number === hs.holeNumber)
+        const par = hole?.parByTee[pr.teeId] ?? 0
+        return {
+          holeNumber: hs.holeNumber,
+          grossScore: hs.grossScore,
+          netScore: hs.netScore,
+          par,
+          scoreToPar: hs.grossScore - par,
+        }
+      }),
+      total: {
+        totalGross: pr.totalGross,
+        totalNet: pr.totalNet,
+        totalToPar:
+          pr.totalGross - course.holes.reduce((sum, h) => sum + (h.parByTee[pr.teeId] ?? 0), 0),
+      },
+    }
+  })
 
   return (
     <Stack gap="md">
@@ -100,7 +116,7 @@ export default function RoundSummaryPage() {
 
       <Group gap="xs">
         <Text fw={500}>{t('history:date')}:</Text>
-        <Text>{new Date(round.date).toLocaleDateString()}</Text>
+        <Text>{formatDate(round.date, dateFormat)}</Text>
       </Group>
 
       <Group gap="xs">
@@ -113,15 +129,20 @@ export default function RoundSummaryPage() {
         <Text>{round.scoringSystem}</Text>
       </Group>
 
-      <TraditionalScorecard
-        holes={course.holes}
-        tees={course.tees}
-        clubName={course.clubName}
-        courseName={course.name}
-        date={round.date}
-        players={playerColumns}
-        readOnly
-      />
+      {playerColumns.map((player) => (
+        <Paper key={player.playerId} withBorder radius="sm" p="md">
+          <TraditionalScorecard
+            holes={course.holes}
+            tees={course.tees}
+            clubName={course.clubName}
+            courseName={course.name}
+            date={round.date}
+            players={[player]}
+            readOnly
+            hideHeader
+          />
+        </Paper>
+      ))}
 
       <Button variant="light" onClick={() => navigate('/')}>
         {t('round:backToHome')}

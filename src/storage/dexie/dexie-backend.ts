@@ -80,6 +80,7 @@ export class DexieStorageBackend implements StorageBackend {
       primaryColor: row.primaryColor ?? 'cyan',
       language: row.language,
       storageBackend: row.storageBackend,
+      dateFormat: row.dateFormat ?? 'DD/MM/YYYY',
       golfCourseApiKey: row.golfCourseApiKey ?? '',
       enabledStats: row.enabledStats ?? ['putts', 'fairwayResult', 'greenInRegulation'],
     }

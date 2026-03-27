@@ -4,6 +4,7 @@ export const SEED_DATA: AppData = {
   settings: {
     distanceUnit: 'meters',
     temperatureUnit: 'celsius',
+    dateFormat: 'DD/MM/YYYY',
     theme: 'light',
     primaryColor: 'cyan',
     language: 'en',

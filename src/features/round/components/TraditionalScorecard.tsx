@@ -1,5 +1,8 @@
-import { Box, Group, Paper, Stack, Table, Text } from '@mantine/core'
+import { Box, Group, Stack, Table, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
+import { useAppStore } from '@/stores/app-store'
+import { formatDate } from '@/lib/date-format'
+import { displayDistance, getUnitLabel } from '@/lib/distance'
 import { ScoreBadge } from './ScoreBadge'
 import type { HoleResult, RoundTotal } from '@/features/round/types'
 import type { Hole, Tee } from '@/storage/types'
@@ -8,6 +11,8 @@ type PlayerData = {
   playerId: string
   playerName: string
   teeId: string
+  handicapIndex?: number
+  courseHandicap?: number
   holeResults: HoleResult[]
   total: RoundTotal
 }
@@ -20,6 +25,7 @@ type TraditionalScorecardProps = {
   courseName: string
   date?: string
   readOnly?: boolean
+  hideHeader?: boolean
   onCellClick?: (playerId: string, holeNumber: number) => void
 }
 
@@ -224,9 +230,12 @@ export function TraditionalScorecard({
   courseName,
   date,
   readOnly = false,
+  hideHeader = false,
   onCellClick,
 }: TraditionalScorecardProps) {
   const { t } = useTranslation()
+  const dateFormat = useAppStore((s) => s.dateFormat)
+  const distanceUnit = useAppStore((s) => s.distanceUnit)
   const sortedHoles = holes.slice().sort((a, b) => a.number - b.number)
   const frontNine = sortedHoles.filter((h) => h.number <= 9)
   const backNine = sortedHoles.filter((h) => h.number > 9 && h.number <= 18)
@@ -239,37 +248,75 @@ export function TraditionalScorecard({
   return (
     <Stack gap="xs">
       {/* Course header */}
-      <Group justify="space-between" align="flex-start">
-        <Box>
-          {clubName && (
-            <Text size="sm" c="dimmed">
-              {clubName}
+      {!hideHeader && (
+        <Group justify="space-between" align="flex-start">
+          <Box>
+            {clubName && (
+              <Text size="sm" c="dimmed">
+                {clubName}
+              </Text>
+            )}
+            <Text size="sm" fw={600}>
+              {courseName}
             </Text>
-          )}
-          <Text size="sm" fw={600}>
-            {courseName}
-          </Text>
-        </Box>
-        <Box ta="right">
-          {date && (
-            <Text size="sm" c="dimmed">
-              {new Date(date).toLocaleDateString()}
-            </Text>
-          )}
-          {tee && (
-            <Text size="sm" c="dimmed">
-              {tee.name}
-            </Text>
-          )}
-        </Box>
-      </Group>
+          </Box>
+          <Box ta="right">
+            {date && (
+              <Text size="sm" c="dimmed">
+                {formatDate(date, dateFormat)}
+              </Text>
+            )}
+            {tee && (
+              <Text size="sm" c="dimmed">
+                {tee.name}
+              </Text>
+            )}
+          </Box>
+        </Group>
+      )}
 
       {/* Player info */}
-      {players.map((player) => (
-        <Text key={player.playerId} size="sm" fw={600}>
-          {player.playerName}
-        </Text>
-      ))}
+      {players.map((player) => {
+        const playerTee = tees.find((te) => te.id === player.teeId)
+        const playerPar = holes.reduce((sum, h) => sum + (h.parByTee[player.teeId] ?? 0), 0)
+        return (
+          <Group key={player.playerId} gap="md" justify="space-between">
+            <Group gap="md">
+              <Text size="sm" fw={600}>
+                {player.playerName}
+              </Text>
+              {player.handicapIndex != null && (
+                <Text size="xs" c="dimmed">
+                  {t('round:handicapIndex')}: {player.handicapIndex.toFixed(1)}
+                </Text>
+              )}
+              {player.courseHandicap != null && (
+                <Text size="xs" c="dimmed">
+                  {t('round:courseHandicap')}: {player.courseHandicap}
+                </Text>
+              )}
+            </Group>
+            {playerTee && (
+              <Group gap="md">
+                <Text size="xs" c="dimmed">
+                  {t('round:tee')}: {playerTee.name} (
+                  {displayDistance(playerTee.totalDistance, distanceUnit)}{' '}
+                  {getUnitLabel(distanceUnit)})
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {t('round:par')}: {playerPar}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {t('round:courseRating')} {playerTee.courseRating}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {t('round:slope')} {playerTee.slopeRating}
+                </Text>
+              </Group>
+            )}
+          </Group>
+        )
+      })}
 
       {/* Front nine */}
       {frontNine.length > 0 && (
@@ -297,25 +344,13 @@ export function TraditionalScorecard({
         />
       )}
 
-      {/* Course info footer */}
-      {tee && (
-        <Paper withBorder p="xs" radius="md">
-          <Group justify="space-around" gap="xs">
-            <Text size="sm">
-              {t('round:courseRating')} {tee.courseRating}
-            </Text>
-            <Text size="sm">
-              {t('round:score')}{' '}
-              <Text span fw={700}>
-                {players[0]?.total.totalGross || '-'}/{totalPar}
-              </Text>
-            </Text>
-            <Text size="sm">
-              {t('round:slope')} {tee.slopeRating}
-            </Text>
-          </Group>
-        </Paper>
-      )}
+      {/* Score footer */}
+      <Text size="sm" ta="center" c="dimmed">
+        {t('round:score')}{' '}
+        <Text span fw={700} c="var(--mantine-color-text)">
+          {players[0]?.total.totalGross || '-'}/{totalPar}
+        </Text>
+      </Text>
     </Stack>
   )
 }

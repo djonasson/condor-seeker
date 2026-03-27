@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Settings } from '@/storage/types'
+import type { DateFormat, Settings } from '@/storage/types'
 
 type AppState = {
   theme: 'light' | 'dark'
@@ -7,6 +7,7 @@ type AppState = {
   language: string
   distanceUnit: 'meters' | 'yards'
   temperatureUnit: 'celsius' | 'fahrenheit'
+  dateFormat: DateFormat
   enabledStats: string[]
   initialized: boolean
   setTheme: (theme: 'light' | 'dark') => void
@@ -14,6 +15,7 @@ type AppState = {
   setLanguage: (language: string) => void
   setDistanceUnit: (unit: 'meters' | 'yards') => void
   setTemperatureUnit: (unit: 'celsius' | 'fahrenheit') => void
+  setDateFormat: (format: DateFormat) => void
   setEnabledStats: (stats: string[]) => void
   hydrate: (settings: Settings) => void
 }
@@ -24,6 +26,7 @@ export const useAppStore = create<AppState>()((set) => ({
   language: 'en',
   distanceUnit: 'meters',
   temperatureUnit: 'celsius',
+  dateFormat: 'DD/MM/YYYY',
   enabledStats: ['putts', 'fairwayResult', 'greenInRegulation'],
   initialized: false,
   setTheme: (theme) => set({ theme }),
@@ -31,6 +34,7 @@ export const useAppStore = create<AppState>()((set) => ({
   setLanguage: (language) => set({ language }),
   setDistanceUnit: (distanceUnit) => set({ distanceUnit }),
   setTemperatureUnit: (temperatureUnit) => set({ temperatureUnit }),
+  setDateFormat: (dateFormat) => set({ dateFormat }),
   setEnabledStats: (enabledStats) => set({ enabledStats }),
   hydrate: (settings) =>
     set({
@@ -39,6 +43,7 @@ export const useAppStore = create<AppState>()((set) => ({
       language: settings.language,
       distanceUnit: settings.distanceUnit,
       temperatureUnit: settings.temperatureUnit,
+      dateFormat: settings.dateFormat ?? 'DD/MM/YYYY',
       enabledStats: settings.enabledStats ?? ['putts', 'fairwayResult', 'greenInRegulation'],
       initialized: true,
     }),
