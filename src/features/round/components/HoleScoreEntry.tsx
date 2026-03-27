@@ -1,5 +1,4 @@
-import { ActionIcon, Group, NumberInput, Stack, Text } from '@mantine/core'
-import { IconMinus, IconPlus } from '@tabler/icons-react'
+import { Group, Stack, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import type { HoleScore } from '@/storage/types'
 import { clampPutts, formatScoreToPar, getScoreToParColor } from '@/lib/score-formatting'
@@ -7,6 +6,7 @@ import { getVisibleStats } from '@/lib/stat-catalog'
 import { useAppStore } from '@/stores/app-store'
 import { SectionCard } from '@/components/SectionCard'
 import { StatInput } from './StatInput'
+import { NumberScrollPicker } from './NumberScrollPicker'
 
 type HoleScoreEntryProps = {
   playerName: string
@@ -61,24 +61,15 @@ export function HoleScoreEntry({
 
   const visibleStats = getVisibleStats(enabledStats, par, score ?? {})
 
-  const handleGrossChange = (delta: number) => {
-    const newGross = Math.max(1, gross + delta)
+  const handleGrossChange = (newGross: number) => {
     const update: Partial<HoleScore> = { grossScore: newGross }
     if (score?.putts !== undefined && score.putts > newGross) {
       update.putts = clampPutts(score.putts, newGross)
     }
-    onScoreChange(update)
-  }
-
-  const handleGrossInput = (val: string | number) => {
-    const num = typeof val === 'string' ? parseInt(val, 10) : val
-    if (!isNaN(num) && num >= 1) {
-      const update: Partial<HoleScore> = { grossScore: num }
-      if (score?.putts !== undefined && score.putts > num) {
-        update.putts = clampPutts(score.putts, num)
-      }
-      onScoreChange(update)
+    if (score?.penaltyStrokes !== undefined && score.penaltyStrokes >= newGross) {
+      update.penaltyStrokes = Math.max(0, newGross - 1)
     }
+    onScoreChange(update)
   }
 
   return (
@@ -145,37 +136,17 @@ export function HoleScoreEntry({
         )}
       </Group>
 
-      <Group justify="center" align="center" gap="xs">
-        <Text size="sm" c="dimmed">
+      <Group justify="space-between" align="center">
+        <Text size="xs" fw={500}>
           {t('round:gross')}
         </Text>
-        <ActionIcon
-          variant="default"
-          size="md"
-          onClick={() => handleGrossChange(-1)}
-          disabled={gross <= 1}
-          aria-label="Decrease score"
-        >
-          <IconMinus size={16} />
-        </ActionIcon>
-        <NumberInput
-          value={gross || ''}
-          onChange={handleGrossInput}
+        <NumberScrollPicker
+          value={gross || 1}
           min={1}
           max={20}
-          w={60}
+          onChange={handleGrossChange}
           size="sm"
-          styles={{ input: { textAlign: 'center' } }}
-          hideControls
         />
-        <ActionIcon
-          variant="default"
-          size="md"
-          onClick={() => handleGrossChange(1)}
-          aria-label="Increase score"
-        >
-          <IconPlus size={16} />
-        </ActionIcon>
       </Group>
 
       <Group justify="center" gap="lg">

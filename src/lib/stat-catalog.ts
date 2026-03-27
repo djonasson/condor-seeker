@@ -59,7 +59,7 @@ export const STAT_CATALOG: StatDefinition[] = [
     inputType: 'number',
     tier: 'advanced',
     defaultValue: () => 0,
-    maxValue: 10,
+    maxValue: (score) => Math.max(0, (score.grossScore ?? 1) - 1),
   },
 ]
 

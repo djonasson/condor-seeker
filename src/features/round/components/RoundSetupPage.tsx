@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Button, Group, Stack, Stepper, Title } from '@mantine/core'
+import { Button, Group, Stack, Text, Title, UnstyledButton } from '@mantine/core'
+import { IconCheck } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useRoundStore } from '@/stores/round-store'
@@ -8,6 +9,65 @@ import { CourseSelector } from './CourseSelector'
 import { PlayerSelector } from './PlayerSelector'
 import type { SelectedPlayer } from './PlayerSelector'
 import { ScoringSystemSelector } from './ScoringSystemSelector'
+
+const STEP_COUNT = 3
+
+function StepIndicator({
+  active,
+  stepLabels,
+  onStepClick,
+}: {
+  active: number
+  stepLabels: string[]
+  onStepClick: (step: number) => void
+}) {
+  return (
+    <Group gap="xs" align="center" wrap="nowrap">
+      {Array.from({ length: STEP_COUNT }, (_, i) => {
+        const completed = i < active
+        const current = i === active
+        return (
+          <UnstyledButton
+            key={i}
+            onClick={() => {
+              if (completed) onStepClick(i)
+            }}
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 'var(--mantine-font-size-xs)',
+              fontWeight: 600,
+              flexShrink: 0,
+              cursor: completed ? 'pointer' : 'default',
+              background: completed
+                ? 'var(--mantine-primary-color-filled)'
+                : current
+                  ? 'transparent'
+                  : 'var(--mantine-color-default-hover)',
+              color: completed
+                ? 'white'
+                : current
+                  ? 'var(--mantine-primary-color-filled)'
+                  : 'var(--mantine-color-dimmed)',
+              border: current
+                ? '2px solid var(--mantine-primary-color-filled)'
+                : '2px solid transparent',
+            }}
+          >
+            {completed ? <IconCheck size={14} /> : i + 1}
+          </UnstyledButton>
+        )
+      })}
+      <Text size="sm" fw={500} ml="xs">
+        {stepLabels[active]}
+      </Text>
+    </Group>
+  )
+}
 
 export default function RoundSetupPage() {
   const { t } = useTranslation()
@@ -18,6 +78,8 @@ export default function RoundSetupPage() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [selectedPlayers, setSelectedPlayers] = useState<SelectedPlayer[]>([])
   const [scoringSystem, setScoringSystem] = useState<'stroke' | 'stableford'>('stroke')
+
+  const stepLabels = [t('round:selectCourse'), t('round:selectPlayers'), t('round:scoringSystem')]
 
   const canProceedFromStep = (step: number): boolean => {
     switch (step) {
@@ -64,35 +126,35 @@ export default function RoundSetupPage() {
     <Stack gap="md">
       <Title order={2}>{t('round:setup')}</Title>
 
-      <Stepper active={active} onStepClick={setActive}>
-        <Stepper.Step label={t('round:selectCourse')} allowStepSelect={active > 0}>
-          <Stack gap="md" mt="md">
-            <CourseSelector
-              selectedCourseId={selectedCourse?.id ?? ''}
-              onSelect={setSelectedCourse}
-            />
-          </Stack>
-        </Stepper.Step>
+      <StepIndicator active={active} stepLabels={stepLabels} onStepClick={setActive} />
 
-        <Stepper.Step label={t('round:selectPlayers')} allowStepSelect={active > 1}>
-          <Stack gap="md" mt="md">
-            <PlayerSelector
-              course={selectedCourse}
-              selectedPlayers={selectedPlayers}
-              onChange={setSelectedPlayers}
-            />
-          </Stack>
-        </Stepper.Step>
+      {active === 0 && (
+        <Stack gap="md">
+          <CourseSelector
+            selectedCourseId={selectedCourse?.id ?? ''}
+            onSelect={setSelectedCourse}
+          />
+        </Stack>
+      )}
 
-        <Stepper.Step label={t('round:scoringSystem')} allowStepSelect={active > 2}>
-          <Stack gap="md" mt="md">
-            <ScoringSystemSelector
-              value={scoringSystem}
-              onChange={(v) => setScoringSystem(v as 'stroke' | 'stableford')}
-            />
-          </Stack>
-        </Stepper.Step>
-      </Stepper>
+      {active === 1 && (
+        <Stack gap="md">
+          <PlayerSelector
+            course={selectedCourse}
+            selectedPlayers={selectedPlayers}
+            onChange={setSelectedPlayers}
+          />
+        </Stack>
+      )}
+
+      {active === 2 && (
+        <Stack gap="md">
+          <ScoringSystemSelector
+            value={scoringSystem}
+            onChange={(v) => setScoringSystem(v as 'stroke' | 'stableford')}
+          />
+        </Stack>
+      )}
 
       <Group justify="space-between" mt="xl">
         <Button variant="default" onClick={handleBack} disabled={active === 0}>
