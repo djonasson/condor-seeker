@@ -108,50 +108,56 @@ export default function PlayerFormPage() {
     <Stack>
       <Title order={2}>{isEdit ? t('player:editPlayer') : t('player:addPlayer')}</Title>
 
-      <Paper withBorder radius="sm" p="md">
-        <form onSubmit={form.onSubmit((values) => void handleSave(values))}>
-          <Stack>
-            <TextInput
-              label={t('player:name')}
-              placeholder={t('player:namePlaceholder')}
-              withAsterisk
-              {...form.getInputProps('name')}
-            />
-            <NumberInput
-              label={t('player:handicap')}
-              min={0}
-              max={54}
-              decimalScale={1}
-              {...form.getInputProps('handicapIndex')}
-            />
-            <Select
-              label={t('player:gender')}
-              data={[
-                { value: 'male', label: t('player:male') },
-                { value: 'female', label: t('player:female') },
-                { value: 'other', label: t('player:other') },
-              ]}
-              {...form.getInputProps('gender')}
-            />
+      <form onSubmit={form.onSubmit((values) => void handleSave(values))}>
+        <Stack>
+          <Paper withBorder radius="sm" p="md">
+            <Stack>
+              <TextInput
+                label={t('player:name')}
+                placeholder={t('player:namePlaceholder')}
+                withAsterisk
+                {...form.getInputProps('name')}
+              />
+              <NumberInput
+                label={t('player:handicap')}
+                min={0}
+                max={54}
+                decimalScale={1}
+                {...form.getInputProps('handicapIndex')}
+              />
+              <Select
+                label={t('player:gender')}
+                data={[
+                  { value: 'male', label: t('player:male') },
+                  { value: 'female', label: t('player:female') },
+                  { value: 'other', label: t('player:other') },
+                ]}
+                {...form.getInputProps('gender')}
+              />
+            </Stack>
+          </Paper>
 
-            <Group justify="space-between" mt="md">
-              <Title order={4}>{t('player:clubs')}</Title>
-              <Button variant="light" size="xs" onClick={handleAddClub}>
-                {t('player:addClub')}
-              </Button>
-            </Group>
+          <Paper withBorder radius="sm" p="md">
+            <Stack>
+              <Group justify="space-between">
+                <Title order={4}>{t('player:clubs')}</Title>
+                <Button variant="light" size="xs" onClick={handleAddClub}>
+                  {t('player:addClub')}
+                </Button>
+              </Group>
 
-            <ClubList clubs={clubs} onEdit={handleClubEdit} onDelete={handleClubDelete} />
+              <ClubList clubs={clubs} onEdit={handleClubEdit} onDelete={handleClubDelete} />
+            </Stack>
+          </Paper>
 
-            <Group justify="flex-end" mt="md">
-              <Button variant="default" onClick={() => navigate('/player')}>
-                {t('common:cancel', 'Cancel')}
-              </Button>
-              <Button type="submit">{t('common:save', 'Save')}</Button>
-            </Group>
-          </Stack>
-        </form>
-      </Paper>
+          <Group justify="flex-end">
+            <Button variant="default" onClick={() => navigate('/player')}>
+              {t('common:cancel', 'Cancel')}
+            </Button>
+            <Button type="submit">{t('common:save', 'Save')}</Button>
+          </Group>
+        </Stack>
+      </form>
 
       <ClubForm
         opened={clubModalOpened}
