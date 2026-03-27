@@ -73,11 +73,10 @@ Given('a completed hole with par {int} and gross score {int}', (state, [par, gro
 })
 
 Then(
-  'the score badge should display a {string} shape with {string} color',
-  (state, [expectedShape, expectedColor]) => {
+  'the score badge should display a {string} shape',
+  (state, [expectedShape]) => {
     const variant = getScoreBadgeVariant(state.holeGross, state.holePar)
     expect(variant.shape).toBe(expectedShape)
-    expect(variant.color).toBe(expectedColor)
     return state
   },
 )

@@ -20,41 +20,41 @@ Feature: Scorecard Display
       | 8    | 4   | 12       | 370      |
       | 9    | 4   | 8        | 390      |
 
-  Scenario: Albatross is shown with a filled red circle
+  Scenario: Albatross or better is shown with a framed filled circle
     Given a completed hole with par 5 and gross score 2
-    Then the score badge should display a "filled-circle" shape with "red" color
+    Then the score badge should display a "framed-filled-circle" shape
 
-  Scenario: Eagle is shown with a double red circle
+  Scenario: Eagle is shown with a double circle
     Given a completed hole with par 5 and gross score 3
-    Then the score badge should display a "double-circle" shape with "red" color
+    Then the score badge should display a "double-circle" shape
 
-  Scenario: Birdie is shown with a single red circle
+  Scenario: Birdie is shown with a circle
     Given a completed hole with par 4 and gross score 3
-    Then the score badge should display a "circle" shape with "red" color
+    Then the score badge should display a "circle" shape
 
-  Scenario: Par is shown with a light grey background
+  Scenario: Par has no decoration
     Given a completed hole with par 4 and gross score 4
-    Then the score badge should display a "none" shape with "grey" color
+    Then the score badge should display a "none" shape
 
-  Scenario: Bogey is shown with a single blue rectangle
+  Scenario: Bogey is shown with a rectangle
     Given a completed hole with par 4 and gross score 5
-    Then the score badge should display a "rectangle" shape with "blue" color
+    Then the score badge should display a "rectangle" shape
 
-  Scenario: Double bogey or worse is shown with a double blue rectangle
+  Scenario: Double bogey is shown with a double rectangle
     Given a completed hole with par 4 and gross score 6
-    Then the score badge should display a "double-rectangle" shape with "blue" color
+    Then the score badge should display a "double-rectangle" shape
 
-  Scenario: Triple bogey or worse is shown with a filled blue rectangle
-    Given a completed hole with par 3 and gross score 6
-    Then the score badge should display a "filled-rectangle" shape with "blue" color
+  Scenario: Triple bogey or worse is shown with a framed filled rectangle
+    Given a completed hole with par 4 and gross score 7
+    Then the score badge should display a "framed-filled-rectangle" shape
 
-  Scenario: Hole-in-one shows a yellow star
+  Scenario: Hole-in-one shows a star
     Given a completed hole with par 3 and gross score 1
-    Then the score badge should display a "star" shape with "yellow" color
+    Then the score badge should display a "star" shape
 
-  Scenario: Hole-in-one on par 4 also shows a yellow star
+  Scenario: Hole-in-one on par 4 also shows a star
     Given a completed hole with par 4 and gross score 1
-    Then the score badge should display a "star" shape with "yellow" color
+    Then the score badge should display a "star" shape
 
   Scenario: Traditional scorecard shows HCP row
     When I view the traditional scorecard

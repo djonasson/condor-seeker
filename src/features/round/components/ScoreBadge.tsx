@@ -7,6 +7,9 @@ type ScoreBadgeProps = {
   size?: number
 }
 
+const COLOR = 'var(--mantine-color-dark-6)'
+const BG = 'var(--mantine-color-dark-6)'
+
 export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
   if (score <= 0) {
     return (
@@ -22,15 +25,7 @@ export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
     )
   }
 
-  const { shape, color } = getScoreBadgeVariant(score, par)
-
-  const borderColor =
-    color === 'red'
-      ? 'var(--mantine-color-red-6)'
-      : color === 'yellow'
-        ? 'var(--mantine-color-yellow-6)'
-        : 'var(--mantine-color-blue-6)'
-  const bgColor = color === 'grey' ? 'var(--mantine-color-gray-2)' : undefined
+  const { shape } = getScoreBadgeVariant(score, par)
 
   const baseStyle: React.CSSProperties = {
     display: 'flex',
@@ -72,13 +67,25 @@ export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
     )
   }
 
+  // Par — no decoration
   if (shape === 'none') {
+    return (
+      <Box style={baseStyle}>
+        <Text size="xs" fw={600}>
+          {score}
+        </Text>
+      </Box>
+    )
+  }
+
+  // Birdie — circle outline
+  if (shape === 'circle') {
     return (
       <Box
         style={{
           ...baseStyle,
-          backgroundColor: bgColor,
-          borderRadius: 4,
+          border: `1.5px solid ${COLOR}`,
+          borderRadius: '50%',
         }}
       >
         <Text size="xs" fw={600}>
@@ -88,28 +95,13 @@ export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
     )
   }
 
-  if (shape === 'circle') {
-    return (
-      <Box
-        style={{
-          ...baseStyle,
-          border: `1px solid ${borderColor}`,
-          borderRadius: '50%',
-        }}
-      >
-        <Text size="xs" fw={600} c="red.7">
-          {score}
-        </Text>
-      </Box>
-    )
-  }
-
+  // Eagle — double circle outline
   if (shape === 'double-circle') {
     return (
       <Box
         style={{
           ...baseStyle,
-          border: `1px solid ${borderColor}`,
+          border: `1.5px solid ${COLOR}`,
           borderRadius: '50%',
           padding: 2,
         }}
@@ -121,11 +113,11 @@ export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
             justifyContent: 'center',
             width: '100%',
             height: '100%',
-            border: `1px solid ${borderColor}`,
+            border: `1.5px solid ${COLOR}`,
             borderRadius: '50%',
           }}
         >
-          <Text size="xs" fw={600} c="red.7">
+          <Text size="xs" fw={600}>
             {score}
           </Text>
         </Box>
@@ -133,79 +125,108 @@ export function ScoreBadge({ score, par, size = 28 }: ScoreBadgeProps) {
     )
   }
 
-  if (shape === 'filled-circle') {
+  // Albatross or better — solid circle with frame
+  if (shape === 'framed-filled-circle') {
     return (
       <Box
         style={{
           ...baseStyle,
-          backgroundColor: 'var(--mantine-color-red-6)',
+          border: `1.5px solid ${COLOR}`,
           borderRadius: '50%',
+          padding: 2,
+        }}
+      >
+        <Box
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            height: '100%',
+            backgroundColor: BG,
+            borderRadius: '50%',
+          }}
+        >
+          <Text size="xs" fw={600} c="white">
+            {score}
+          </Text>
+        </Box>
+      </Box>
+    )
+  }
+
+  // Bogey — square outline
+  if (shape === 'rectangle') {
+    return (
+      <Box
+        style={{
+          ...baseStyle,
+          border: `1.5px solid ${COLOR}`,
+          borderRadius: 2,
+        }}
+      >
+        <Text size="xs" fw={600}>
+          {score}
+        </Text>
+      </Box>
+    )
+  }
+
+  // Double bogey — double square outline
+  if (shape === 'double-rectangle') {
+    return (
+      <Box
+        style={{
+          ...baseStyle,
+          border: `1.5px solid ${COLOR}`,
+          borderRadius: 2,
+          padding: 2,
+        }}
+      >
+        <Box
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            height: '100%',
+            border: `1.5px solid ${COLOR}`,
+            borderRadius: 2,
+          }}
+        >
+          <Text size="xs" fw={600}>
+            {score}
+          </Text>
+        </Box>
+      </Box>
+    )
+  }
+
+  // Triple bogey or worse — solid square with frame
+  return (
+    <Box
+      style={{
+        ...baseStyle,
+        border: `1.5px solid ${COLOR}`,
+        borderRadius: 2,
+        padding: 2,
+      }}
+    >
+      <Box
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          height: '100%',
+          backgroundColor: BG,
+          borderRadius: 2,
         }}
       >
         <Text size="xs" fw={600} c="white">
           {score}
         </Text>
       </Box>
-    )
-  }
-
-  if (shape === 'rectangle') {
-    return (
-      <Box
-        style={{
-          ...baseStyle,
-          border: `1px solid ${borderColor}`,
-          borderRadius: 2,
-        }}
-      >
-        <Text size="xs" fw={600} c="blue.7">
-          {score}
-        </Text>
-      </Box>
-    )
-  }
-
-  if (shape === 'double-rectangle') {
-    return (
-      <Box
-        style={{
-          ...baseStyle,
-          border: `1px solid ${borderColor}`,
-          borderRadius: 2,
-          padding: 2,
-        }}
-      >
-        <Box
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            height: '100%',
-            border: `1px solid ${borderColor}`,
-            borderRadius: 2,
-          }}
-        >
-          <Text size="xs" fw={600} c="blue.7">
-            {score}
-          </Text>
-        </Box>
-      </Box>
-    )
-  }
-
-  // filled-rectangle (triple bogey or worse)
-  return (
-    <Box
-      style={{
-        ...baseStyle,
-        backgroundColor: 'var(--mantine-color-blue-6)',
-        borderRadius: 2,
-      }}
-    >
-      <Text size="xs" fw={600} c="white">
-        {score}
-      </Text>
     </Box>
   )
 }

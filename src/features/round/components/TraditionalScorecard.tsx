@@ -280,8 +280,8 @@ export function TraditionalScorecard({
         const playerTee = tees.find((te) => te.id === player.teeId)
         const playerPar = holes.reduce((sum, h) => sum + (h.parByTee[player.teeId] ?? 0), 0)
         return (
-          <Group key={player.playerId} gap="md" justify="space-between">
-            <Group gap="md">
+          <Group key={player.playerId} gap="md" justify="space-between" align="baseline">
+            <Group gap="md" align="baseline">
               <Text size="sm" fw={600}>
                 {player.playerName}
               </Text>
@@ -297,7 +297,7 @@ export function TraditionalScorecard({
               )}
             </Group>
             {playerTee && (
-              <Group gap="md">
+              <Group gap="md" align="baseline">
                 <Text size="xs" c="dimmed">
                   {t('round:tee')}: {playerTee.name} (
                   {displayDistance(playerTee.totalDistance, distanceUnit)}{' '}
