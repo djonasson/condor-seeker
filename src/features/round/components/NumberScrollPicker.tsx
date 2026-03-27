@@ -1,4 +1,4 @@
-import { ActionIcon, Group, SegmentedControl } from '@mantine/core'
+import { Group, UnstyledButton } from '@mantine/core'
 import { IconMinus, IconPlus } from '@tabler/icons-react'
 
 type NumberScrollPickerProps = {
@@ -24,55 +24,79 @@ export function NumberScrollPicker({
   const canDecrease = value > min
   const canIncrease = value < max
 
-  const iconSize = size === 'xs' ? 14 : 16
-  const actionSize = size === 'xs' ? 'sm' : 'md'
+  const padding = size === 'xs' ? '4px 8px' : '6px 12px'
+  const fontSize = size === 'xs' ? 'var(--mantine-font-size-xs)' : 'var(--mantine-font-size-sm)'
+  const iconSize = size === 'xs' ? 12 : 14
 
   return (
-    <Group gap={4} align="center" wrap="nowrap">
-      {canDecrease ? (
-        <ActionIcon
-          variant="default"
-          size={actionSize}
+    <Group
+      gap={0}
+      wrap="nowrap"
+      style={{
+        border: '1px solid var(--mantine-color-default-border)',
+        borderRadius: 'var(--mantine-radius-sm)',
+        overflow: 'hidden',
+      }}
+    >
+      {canDecrease && (
+        <UnstyledButton
           onClick={() => onChange(value - 1)}
           aria-label="Decrease"
+          style={{
+            padding,
+            fontSize,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRight: '1px solid var(--mantine-color-default-border)',
+            color: 'var(--mantine-color-dimmed)',
+          }}
         >
           <IconMinus size={iconSize} />
-        </ActionIcon>
-      ) : (
-        <ActionIcon
-          size={actionSize}
-          variant="transparent"
-          disabled
-          style={{ visibility: 'hidden' }}
-        />
+        </UnstyledButton>
       )}
-      <SegmentedControl
-        size={size}
-        radius="sm"
-        fullWidth
-        transitionDuration={500}
-        transitionTimingFunction="linear"
-        color="var(--mantine-primary-color-filled)"
-        value={String(value)}
-        onChange={(val) => onChange(parseInt(val, 10))}
-        data={numbers.map((n) => ({ label: String(n), value: String(n) }))}
-      />
-      {canIncrease ? (
-        <ActionIcon
-          variant="default"
-          size={actionSize}
+      {numbers.map((n, i) => {
+        const selected = n === value
+        const showLeftBorder = i > 0 || canDecrease
+        return (
+          <UnstyledButton
+            key={n}
+            onClick={() => onChange(n)}
+            style={{
+              padding,
+              fontSize,
+              fontWeight: 500,
+              textAlign: 'center',
+              minWidth: size === 'xs' ? 28 : 34,
+              whiteSpace: 'nowrap',
+              background: selected ? 'var(--mantine-primary-color-filled)' : 'transparent',
+              color: selected ? 'white' : 'var(--mantine-color-text)',
+              borderLeft: showLeftBorder
+                ? '1px solid var(--mantine-color-default-border)'
+                : undefined,
+              transition: 'background 150ms ease, color 150ms ease',
+            }}
+          >
+            {n}
+          </UnstyledButton>
+        )
+      })}
+      {canIncrease && (
+        <UnstyledButton
           onClick={() => onChange(value + 1)}
           aria-label="Increase"
+          style={{
+            padding,
+            fontSize,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderLeft: '1px solid var(--mantine-color-default-border)',
+            color: 'var(--mantine-color-dimmed)',
+          }}
         >
           <IconPlus size={iconSize} />
-        </ActionIcon>
-      ) : (
-        <ActionIcon
-          size={actionSize}
-          variant="transparent"
-          disabled
-          style={{ visibility: 'hidden' }}
-        />
+        </UnstyledButton>
       )}
     </Group>
   )

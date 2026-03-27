@@ -1,8 +1,9 @@
-import { Group, SegmentedControl, Text } from '@mantine/core'
+import { Group, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import type { StatDefinition } from '@/lib/stat-catalog'
 import type { HoleScore } from '@/storage/types'
 import { clampPutts } from '@/lib/score-formatting'
+import { SegmentPicker } from '@/components/SegmentPicker'
 import { NumberScrollPicker } from './NumberScrollPicker'
 
 type StatInputProps = {
@@ -21,13 +22,8 @@ export function StatInput({ stat, value, score, onChange }: StatInputProps) {
         <Text size="xs" fw={500}>
           {t(stat.id)}
         </Text>
-        <SegmentedControl
+        <SegmentPicker
           size="sm"
-          radius="sm"
-          fullWidth={true}
-          transitionDuration={500}
-          transitionTimingFunction="linear"
-          color="var(--mantine-primary-color-filled)"
           value={value === true ? 'yes' : value === false ? 'no' : ''}
           onChange={(val) => onChange({ [stat.id]: val === 'yes' })}
           data={[
@@ -49,13 +45,8 @@ export function StatInput({ stat, value, score, onChange }: StatInputProps) {
         <Text size="xs" fw={500}>
           {t(stat.id)}
         </Text>
-        <SegmentedControl
+        <SegmentPicker
           size="sm"
-          radius="sm"
-          fullWidth={true}
-          transitionDuration={500}
-          transitionTimingFunction="linear"
-          color="var(--mantine-primary-color-filled)"
           value={(value as string) ?? ''}
           onChange={(val) => onChange({ [stat.id]: val || undefined })}
           data={options}

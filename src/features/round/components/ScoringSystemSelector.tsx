@@ -1,5 +1,5 @@
-import { SegmentedControl } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
+import { SegmentPicker } from '@/components/SegmentPicker'
 
 type ScoringSystemSelectorProps = {
   value: string
@@ -10,7 +10,7 @@ export function ScoringSystemSelector({ value, onChange }: ScoringSystemSelector
   const { t } = useTranslation()
 
   return (
-    <SegmentedControl
+    <SegmentPicker
       value={value}
       onChange={onChange}
       data={[
